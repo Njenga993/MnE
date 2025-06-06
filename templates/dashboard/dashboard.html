@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <header>
+        <h2><p>Dashboard Overview</p></h2>
+        <p>Welcome, {{ request.user.get_full_name|default:request.user.username }}!</p>
+        <p>Here you can view the overall progress of your M&E activities.</p>
+    </header>
+
+    <section class="summary-cards">
+        <div class="card">
+            <h3>Goals</h3>
+            <h3><p>{{ totals.goals|default:0 }}</p></h3>
+        </div>
+        <div class="card">
+            <h3>Outcomes</h3>
+            <h3><p>{{ totals.outcomes|default:0 }}</p></h3>
+        </div>
+        <div class="card">
+            <h3>Outputs</h3>
+            <h3><p>{{ totals.outputs|default:0 }}</p></h3>
+        </div>
+        <div class="card">
+            <h3>Indicators</h3>
+            <h3><p>{{ totals.indicators|default:0 }}</p></h3>
+        </div>
+    </section>
+
+    <section class="progress-section">
+        <h2>Overall Progress</h2>
+        <div class="progress-bar overall">
+            <div class="progress-fill" style="width: {{ average_progress }}%">
+                <span>{{ average_progress }}%</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="trends-section">
+        <h2>Recent Indicators</h2>
+        {% if progress_trends %}
+        <ul class="trends-list">
+            {% for trend in progress_trends %}
+            <li class="trend-item">
+                <div class="trend-header">
+                    <span class="indicator-name">{{ trend.name }}</span>
+                    <span class="progress-value">{{ trend.progress }}%</span>
+                </div>
+                <div class="progress-bar mini">
+                    <div class="progress-fill" style="width: {{ trend.progress }}%"></div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="no-data">No recent indicators available.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

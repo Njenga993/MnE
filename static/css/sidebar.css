@@ -1,0 +1,160 @@
+/* === Sidebar Styling === */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 275px;
+  background-color: #f0fdf4;
+  color: #166534;
+  padding-top: 10px;
+  z-index: 1000;
+  transition: transform 0.3s ease-in-out;
+  overflow-y: auto;
+}
+
+/* Collapsed sidebar */
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  text-align: center;
+  padding: 1rem;
+  font-size: 1rem;
+  border-bottom: 1px solid #14532d;
+}
+
+.sidebar .logo-text {
+  margin-left: 10px;
+}
+
+/* Nav links */
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav li {
+  border-bottom: 1px solid #166534;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  color: #111111;
+  text-decoration: none;
+  padding: 0.9rem 1.5rem;
+  transition: background 0.2s ease;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  background-color: #166534;
+  color: #fff;
+}
+
+.sidebar-nav i {
+  margin-right: 10px;
+}
+
+/* Footer */
+.sidebar-footer {
+  position: absolute;
+  bottom: 1rem;
+  width: 100%;
+  text-align: center;
+  border-top: 1px solid #14532d;
+  padding: 1rem 0;
+}
+
+.sidebar-footer .user-text {
+  margin-left: 8px;
+}
+
+/* === Sidebar Toggle Button (unified) === */
+.sidebar-toggle {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #14532d;
+  margin-right: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* === Responsive Behavior === */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    position: fixed;
+    z-index: 1000;
+    width: 250px;
+    background-color: #f0fdf4;
+  }
+
+  .sidebar.active,
+  .sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    padding-left: 0;
+  }
+
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+}
+
+/* Mini Sidebar - New Styles Only */
+.mini-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 75px;
+  background-color: #f0fdf4;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 999;
+  overflow-y: auto;
+  border-right: 1px solid #14532d;
+  display: none; /* Hidden by default */
+}
+
+/* Show mini sidebar when main is collapsed on desktop */
+@media (min-width: 769px) {
+  .sidebar-wrapper.active .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar-wrapper.active .mini-sidebar {
+    display: block;
+    transform: translateX(0);
+  }
+}
+
+/* Mini sidebar content styling */
+.mini-sidebar .sidebar-nav a {
+  justify-content: center;
+  padding: 0.9rem 0;
+}
+
+.mini-sidebar .sidebar-nav i {
+  margin-right: 0;
+}
+
+.mini-sidebar .nav-text,
+.mini-sidebar .user-text {
+  display: none;
+}
+
+/* Active state for mini sidebar */
+.mini-sidebar .sidebar-nav a.active {
+  background-color: #166534;
+  color: #fff;
+}

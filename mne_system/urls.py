@@ -16,8 +16,8 @@ urlpatterns = [
     path('api/v1/dashboard/', include('dashboard.urls')),
     path('api/v1/comments/', include('comments.urls')),
     path('api/v1/reports/', include('reports.urls')),
-    # path('tasks/', include('tasks.urls')),
-    # path('core/', include('core.urls')),  # For auth, users, profiles
+    path('api/v1/tasks/', include('tasks.urls')),
+    path('api/v1/core/', include('core.urls')),  # For auth, users, profiles
 ]
 
 # Serve media files in development

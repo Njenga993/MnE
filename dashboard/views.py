@@ -1,29 +1,44 @@
-from django.http import JsonResponse
 from django.views import View
+from django.shortcuts import render
+from django.db.models import Sum
 from indicators.models import Indicator
 from logframe.models import Goal, Outcome, Output
 
 class DashboardSummaryView(View):
     def get(self, request):
+        # Count logframe items
         total_goals = Goal.objects.count()
         total_outcomes = Outcome.objects.count()
         total_outputs = Output.objects.count()
         total_indicators = Indicator.objects.count()
 
-        from django.db.models import Avg
-        avg_progress = Indicator.objects.aggregate(avg_progress=Avg('progress')).get('avg_progress') or 0
+        indicators = Indicator.objects.all()
 
-        latest_indicators = Indicator.objects.order_by('-id')[:5]
+        # Progress computation helper
+        def compute_progress(indicator):
+            total_actual = indicator.indicatordata.aggregate(
+                total=Sum('value')
+            )['total'] or 0
+            return round((total_actual / indicator.target) * 100, 2) if indicator.target else 0
+
+        # Calculate progress for each indicator
+        progress_values = [compute_progress(ind) for ind in indicators]
+
+        # Average progress
+        avg_progress = round(sum(progress_values) / len(progress_values), 2) if progress_values else 0
+
+        # Latest indicators with progress
+        latest_indicators = indicators.order_by('-id')[:5]
         progress_trends = [
             {
                 "id": ind.id,
                 "name": ind.name,
-                "progress": ind.progress,
+                "progress": compute_progress(ind),
             }
             for ind in latest_indicators
         ]
 
-        data = {
+        context = {
             "totals": {
                 "goals": total_goals,
                 "outcomes": total_outcomes,
@@ -33,4 +48,4 @@ class DashboardSummaryView(View):
             "average_progress": avg_progress,
             "progress_trends": progress_trends,
         }
-        return JsonResponse(data)
+        return render(request, "dashboard/dashboard.html", context)

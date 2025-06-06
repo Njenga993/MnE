@@ -1,0 +1,50 @@
+{% load static %}
+<!-- templates/includes/sidebar.html -->
+<div class="sidebar-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-chart-pie"></i> <span class="logo-text">M&E System</span></h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="/admin/" class="{% if request.path == '/admin/' %}active{% endif %}"><i class="fas fa-user-shield"></i><span class="nav-text">Admin</span></a></li>
+                <li><a href="/api/v1/logframe/" class="{% if request.path == '/api/v1/logframe/' %}active{% endif %}"><i class="fas fa-project-diagram"></i><span class="nav-text">Logframe</span></a></li>
+                <li><a href="/api/v1/mobile/" class="{% if request.path == '/api/v1/mobile/' %}active{% endif %}"><i class="fas fa-mobile-alt"></i><span class="nav-text">Mobile API</span></a></li>
+                <li><a href="/api/v1/indicators/" class="{% if request.path == '/api/v1/indicators/' %}active{% endif %}"><i class="fas fa-chart-line"></i><span class="nav-text">Indicators</span></a></li>
+                <li><a href="/api/v1/dashboard/" class="{% if request.path == '/api/v1/dashboard/' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i><span class="nav-text">Dashboard</span></a></li>
+                <li><a href="/api/v1/comments/" class="{% if request.path == '/api/v1/comments/' %}active{% endif %}"><i class="fas fa-comments"></i><span class="nav-text">Comments</span></a></li>
+                <li><a href="/api/v1/reports/" class="{% if request.path == '/api/v1/reports/' %}active{% endif %}"><i class="fas fa-file-alt"></i><span class="nav-text">Reports</span></a></li>
+                <li><a href="/api/v1/tasks/" class="{% if request.path == '/api/v1/tasks/' %}active{% endif %}"><i class="fas fa-tasks"></i><span class="nav-text">Tasks</span></a></li>
+                <li><a href="/api/v1/core/" class="{% if request.path == '/api/v1/core/' %}active{% endif %}"><i class="fas fa-cog"></i><span class="nav-text">Core</span></a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <i class="fas fa-user-circle"></i>
+                <span class="user-text">{% firstof request.user.get_full_name request.user.username %}</span>
+            </div>
+        </div>
+    </aside>
+    <!-- Add this right after your existing sidebar -->
+<aside class="mini-sidebar">
+    <nav class="sidebar-nav">
+        <ul>
+            <li><a href="/admin/" class="{% if request.path == '/admin/' %}active{% endif %}"><i class="fas fa-user-shield"></i></a></li>
+            <li><a href="/api/v1/logframe/" class="{% if request.path == '/api/v1/logframe/' %}active{% endif %}"><i class="fas fa-project-diagram"></i></a></li>
+            <li><a href="/api/v1/mobile/" class="{% if request.path == '/api/v1/mobile/' %}active{% endif %}"><i class="fas fa-mobile-alt"></i></a></li>
+            <li><a href="/api/v1/indicators/" class="{% if request.path == '/api/v1/indicators/' %}active{% endif %}"><i class="fas fa-chart-line"></i></a></li>
+            <li><a href="/api/v1/dashboard/" class="{% if request.path == '/api/v1/dashboard/' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i></a></li>
+            <li><a href="/api/v1/comments/" class="{% if request.path == '/api/v1/comments/' %}active{% endif %}"><i class="fas fa-comments"></i></a></li>
+            <li><a href="/api/v1/reports/" class="{% if request.path == '/api/v1/reports/' %}active{% endif %}"><i class="fas fa-file-alt"></i></a></li>
+            <li><a href="/api/v1/tasks/" class="{% if request.path == '/api/v1/tasks/' %}active{% endif %}"><i class="fas fa-tasks"></i></a></li>
+            <li><a href="/api/v1/core/" class="{% if request.path == '/api/v1/core/' %}active{% endif %}"><i class="fas fa-cog"></i></a></li>
+        </ul>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            <i class="fas fa-user-circle"></i>
+        </div>
+    </div>
+</aside>
+</div>
+<!-- End of sidebar.html -->
