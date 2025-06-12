@@ -2,10 +2,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from core.views import login_user
 
 urlpatterns = [
     # Admin Panel
     path('admin/', admin.site.urls),
+    path('', login_user, name='login'),  # ✅ This handles the root URL
 
     # API Routes (versioned for future scalability)
     path('api/v1/logframe/', include('logframe.urls')),

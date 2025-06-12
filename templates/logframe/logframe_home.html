@@ -1,0 +1,27 @@
+{% extends "base.html" %}  <!-- Assuming you have a base template -->
+
+{% block content %}
+<div class="logframe-container">
+    <h1>Logframe Structure</h1>
+    <div class="logframe-nav">
+        <button class="nav-btn active" data-section="goals">Goals</button>
+        <button class="nav-btn" data-section="outcomes">Outcomes</button>
+        <button class="nav-btn" data-section="outputs">Outputs</button>
+        <button class="nav-btn" data-section="indicators">Indicators</button>
+    </div>
+    
+    <div class="logframe-content">
+        <div id="loading-spinner" class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        
+        <div id="logframe-data" class="data-container">
+            <!-- Data will be loaded here dynamically -->
+        </div>
+    </div>
+</div>
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'your_app/css/logframe.css' %}">
+<script src="{% static 'your_app/js/logframe.js' %}"></script>
+{% endblock %}

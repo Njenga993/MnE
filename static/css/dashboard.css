@@ -88,13 +88,13 @@ h3 {
 }
 
 .progress-bar {
-  width: 100%;
+  width: 95%;
   background-color: #ddd;
-  border-radius: 10px;
+  border-radius: 15px;
   overflow: hidden;
   height: 25px;
-  margin-bottom: 1.5rem;
-  position: absolute;
+  margin-bottom: 10 rem;
+  position: flex;
 }
 
 .progress-bar.overall {
@@ -102,14 +102,14 @@ h3 {
 }
 
 .progress-fill {
-  height: 100%;
-  background: linear-gradient(to right, #4caf50, #81c784);
-  color: white;
+  height: 30px;
+  background: #4caf50;
+  color: rgb(13, 14, 13);
   font-weight: bold;
-  padding: 10 10px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  padding: 20 20px;
+  display: absolute;
+  align-items: right;
+  justify-content: center;
   transition: width 0.8s ease-in-out;
 }
 

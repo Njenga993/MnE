@@ -3,7 +3,29 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, redirect
 import json
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
+def html_login_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard-home')  # Make sure this route exists in your urls.py
+
+    error = None
+
+    if request.method == 'POST':
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard-home')  # Make sure this matches your dashboard URL name
+        else:
+            error = "Invalid username or password."
+
+    return render(request, "Login.html", {"error": error})
 
 @csrf_exempt
 def register_user(request):
@@ -19,29 +41,18 @@ def register_user(request):
 @csrf_exempt
 def login_user(request):
     if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
-            username = data.get('username')
-            password = data.get('password')
+        user = authenticate(request, username=username, password=password)
 
-            if not username or not password:
-                return JsonResponse({'error': 'Username and password are required.'}, status=400)
+        if user is not None:
+            login(request, user)
+            return redirect('/api/v1/dashboard/')  # Change if needed
+        else:
+            messages.error(request, "Invalid username or password")
 
-            user = authenticate(request, username=username, password=password)
-
-            if user is not None:
-                login(request, user)
-                return JsonResponse({'message': 'Login successful'})
-            else:
-                return JsonResponse({'error': 'Invalid credentials'}, status=401)
-
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON format.'}, status=400)
-        except Exception as e:
-            return JsonResponse({'error': f'Unexpected error: {str(e)}'}, status=500)
-    else:
-        return HttpResponseNotAllowed(['POST'])
+    return render(request, 'login.html')
 
 def get_profile(request):
     if request.user.is_authenticated:

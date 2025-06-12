@@ -68,6 +68,9 @@ TEMPLATES = [
     },
 ]
 
+LOGIN_URL = '/api/v1/core/Login/'
+LOGIN_REDIRECT_URL = '/api/v1/dashboard/'
+
 WSGI_APPLICATION = 'mne_system.wsgi.application'
 
 # Database
