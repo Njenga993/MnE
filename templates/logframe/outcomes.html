@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/outcomes.css' %}">
+
+{% block title %}Outcomes - MnE System{% endblock %}
+
+
+{% block content %}
+<div class="container">
+  <h2>Outcomes</h2>
+
+  <!-- Outcomes Table -->
+  <table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Goal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for outcome in outcomes %}
+        <tr>
+          <td>{{ outcome.title }}</td>
+          <td>{{ outcome.description }}</td>
+          <td>{{ outcome.goal.title }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <hr>
+
+  <!-- Add Outcome Form -->
+  <h3>Add New Outcome</h3>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Outcome</button>
+  </form>
+</div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector("form");
+        form.addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent default form submission
+            const formData = new FormData(form);
+            
+            fetch("/api/v1/logframe/api/outcomes/", {
+            method: "POST",
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token
+            }
+            })
+            .then(response => response.json())
+            .then(data => {
+            if (data.success) {
+                location.reload(); // Reload the page to see the new outcome
+            } else {
+                alert("Error adding outcome: " + data.error);
+            }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+        });
+    </script>
+    {% endblock %}

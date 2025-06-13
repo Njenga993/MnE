@@ -7,6 +7,12 @@ from django.shortcuts import render, redirect
 import json
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth import logout
+
+def logout_user(request):
+    logout(request)
+    return redirect('/api/v1/core/Login/')  # Ensure 'login' is the name of your login view in urls
+
 
 def html_login_view(request):
     if request.user.is_authenticated:

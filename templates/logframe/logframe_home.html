@@ -1,27 +1,26 @@
-{% extends "base.html" %}  <!-- Assuming you have a base template -->
+<!-- templates/logframe/logframe_home.html -->
+{% extends "base.html" %}
 
 {% block content %}
-<div class="logframe-container">
-    <h1>Logframe Structure</h1>
-    <div class="logframe-nav">
-        <button class="nav-btn active" data-section="goals">Goals</button>
-        <button class="nav-btn" data-section="outcomes">Outcomes</button>
-        <button class="nav-btn" data-section="outputs">Outputs</button>
-        <button class="nav-btn" data-section="indicators">Indicators</button>
-    </div>
-    
-    <div class="logframe-content">
-        <div id="loading-spinner" class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        
-        <div id="logframe-data" class="data-container">
-            <!-- Data will be loaded here dynamically -->
-        </div>
+<div class="container">
+    <h1 class="page-title">📊 Logframe Dashboard</h1>
+    <div class="logframe-grid">
+        <a href="/api/v1/logframe/goals/" class="logframe-box goal">
+            <h2>🎯 Goals</h2>
+            <p>View and manage high-level goals</p>
+        </a>
+        <a href="/api/v1/logframe/outcomes/" class="logframe-box outcome">
+            <h2>📈 Outcomes</h2>
+            <p>Track outcome progress</p>
+        </a>
+        <a href="/api/v1/logframe/outputs/" class="logframe-box output">
+            <h2>⚙️ Outputs</h2>
+            <p>Manage output activities</p>
+        </a>
+        <a href="/api/v1/logframe/indicators/" class="logframe-box indicator">
+            <h2>📍 Indicators</h2>
+            <p>Measure results with indicators</p>
+        </a>
     </div>
 </div>
-
-{% load static %}
-<link rel="stylesheet" href="{% static 'your_app/css/logframe.css' %}">
-<script src="{% static 'your_app/js/logframe.js' %}"></script>
 {% endblock %}

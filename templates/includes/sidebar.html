@@ -15,15 +15,18 @@
                 <li><a href="/api/v1/comments/" class="{% if request.path == '/api/v1/comments/' %}active{% endif %}"><i class="fas fa-comments"></i><span class="nav-text">Comments</span></a></li>
                 <li><a href="/api/v1/reports/" class="{% if request.path == '/api/v1/reports/' %}active{% endif %}"><i class="fas fa-file-alt"></i><span class="nav-text">Reports</span></a></li>
                 <li><a href="/api/v1/tasks/" class="{% if request.path == '/api/v1/tasks/' %}active{% endif %}"><i class="fas fa-tasks"></i><span class="nav-text">Tasks</span></a></li>
-                <li><a href="/api/v1/core/" class="{% if request.path == '/api/v1/core/' %}active{% endif %}"><i class="fas fa-cog"></i><span class="nav-text">Core</span></a></li>
+                <li><a href="/api/v1/core/" class="{% if request.path == '/api/v1/core/' %}active{% endif %}"><i class="fas fa-tasks"></i><span class="nav-text">Core</span></a></li>
+
+
             </ul>
         </nav>
-        <div class="sidebar-footer">
-            <div class="user-profile">
-                <i class="fas fa-user-circle"></i>
-                <span class="user-text">{% firstof request.user.get_full_name request.user.username %}</span>
-            </div>
-        </div>
+             <div class="sidebar-footer">
+               <a href="{% url 'logout' %}" id="logout-link" class="logout-button">
+                   <i class="fas fa-sign-out-alt"></i>
+                  <span>Logout</span>
+               </a>
+             </div>
+
     </aside>
     <!-- Add this right after your existing sidebar -->
 <aside class="mini-sidebar">
@@ -37,14 +40,30 @@
             <li><a href="/api/v1/comments/" class="{% if request.path == '/api/v1/comments/' %}active{% endif %}"><i class="fas fa-comments"></i></a></li>
             <li><a href="/api/v1/reports/" class="{% if request.path == '/api/v1/reports/' %}active{% endif %}"><i class="fas fa-file-alt"></i></a></li>
             <li><a href="/api/v1/tasks/" class="{% if request.path == '/api/v1/tasks/' %}active{% endif %}"><i class="fas fa-tasks"></i></a></li>
-            <li><a href="/api/v1/core/" class="{% if request.path == '/api/v1/core/' %}active{% endif %}"><i class="fas fa-cog"></i></a></li>
+            <li><a href="/api/v1/core/" class="{% if request.path == '/api/v1/core/' %}active{% endif %}"><i class="fas fa-tasks"></i></a></li>
+        
+
+
         </ul>
     </nav>
-    <div class="sidebar-footer">
-        <div class="user-profile">
-            <i class="fas fa-user-circle"></i>
-        </div>
-    </div>
+<div class="sidebar-footer">
+    <a href="{% url 'logout' %}" class="{% if request.path == '/logout/' %}active{% endif %} logout-mini-link">
+        <i class="fas fa-sign-out-alt"></i>
+    </a>
+</div>
+
 </aside>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const logoutLink = document.getElementById("logout-link");
+    logoutLink.addEventListener("click", function(event) {
+        const confirmLogout = confirm("Are you sure you want to logout?");
+        if (!confirmLogout) {
+            event.preventDefault();  // Cancel logout
+        }
+    });
+});
+</script>
+
 <!-- End of sidebar.html -->

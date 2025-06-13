@@ -1,0 +1,48 @@
+.goals-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #110808;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+h2, h3 {
+  color: #2e7d32;
+  margin-bottom: 1rem;
+}
+
+.goal-form input,
+.goal-form textarea {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.goal-form button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.goal-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.goal-table th, .goal-table td {
+  border: 1px solid #201414;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.goal-table th {
+  background-color: #050c14;
+  color: #333;
+}

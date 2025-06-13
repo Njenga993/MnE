@@ -1,5 +1,5 @@
 from django.urls import path
-from core.views import html_login_view, login_user, register_user, get_profile, login_required, render
+from core.views import html_login_view, login_user, register_user, get_profile, logout_user
 
 urlpatterns = [
     path('', html_login_view, name='login'),  # Root URL opens login page
@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/profile/', get_profile, name='get_profile'),
     # Add dashboard path as well:
     path('Login/', login_user, name='login_user'), 
+    path('logout/', logout_user, name='logout'),
 ]
