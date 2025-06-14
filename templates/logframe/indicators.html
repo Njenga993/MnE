@@ -5,110 +5,209 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/indicators.css' %}">
 
-<div class="indicator-container">
+<div class="container">
   <h2>Indicators</h2>
 
-    <!-- Add New Indicator -->
-     <div class="indicator-form">
-  <h3>Add New Indicator</h3>
-  <form id="indicator-form" method="POST">
-    {% csrf_token %}
+  <!-- Indicator Form -->
+  <div class="output-form">
+    <h3 id="form-title">Add New Indicator</h3>
+    <form id="indicatorForm">
+      {% csrf_token %}
+      <input type="hidden" name="indicator_id" />
 
-    <label>Name:</label>
-    <input type="text" name="name" required>
+      <label>Name:</label>
+      <input type="text" name="name" required>
 
-    <label>Means of Verification:</label>
-    <input type="text" name="means_of_verification" required>
+      <label>Means of Verification:</label>
+      <input type="text" name="means_of_verification" required>
 
-    <label>Unit of Measurement:</label>
-    <input type="text" name="unit_of_measurement" required>
+      <label>Unit of Measurement:</label>
+      <input type="text" name="unit_of_measurement" required>
 
-    <label>Baseline:</label>
-    <input type="number" step="0.01" name="baseline" required>
+      <label>Baseline:</label>
+      <input type="number" step="0.01" name="baseline" required>
 
-    <label>Target:</label>
-    <input type="number" step="0.01" name="target" required>
+      <label>Target:</label>
+      <input type="number" step="0.01" name="target" required>
 
-    <label>Actual:</label>
-    <input type="number" step="0.01" name="actual" required>
+      <label>Actual:</label>
+      <input type="number" step="0.01" name="actual" required>
 
-    <label>Select Output:</label>
-    <select name="output" required>
-      <option value="">-- Choose Output --</option>
-      {% for output in outputs %}
-        <option value="{{ output.id }}">{{ output.title }}</option>
-      {% endfor %}
-    </select>
+      <label>Select Output:</label>
+      <select name="output" required>
+        <option value="">-- Choose Output --</option>
+      </select>
 
-    <button type="submit">Add Indicator</button>
-  </form>
+      <button type="submit" id="submitBtn">Add Indicator</button>
+      <button type="button" id="cancelEditBtn" style="display: none;">Cancel</button>
+    </form>
   </div>
 
   <!-- Indicator Table -->
-   <div class="indicator-table">
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Means of Verification</th>
-        <th>Unit</th>
-        <th>Baseline</th>
-        <th>Target</th>
-        <th>Actual</th>
-        <th>Progress (%)</th>
-        <th>Output</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for indicator in indicators %}
+  <div class="output-table">
+    <h3>Existing Indicators</h3>
+    <table>
+      <thead>
         <tr>
-          <td>{{ indicator.name }}</td>
-          <td>{{ indicator.means_of_verification }}</td>
-          <td>{{ indicator.unit_of_measurement }}</td>
-          <td>{{ indicator.baseline }}</td>
-          <td>{{ indicator.target }}</td>
-          <td>{{ indicator.actual }}</td>
-          <td>{{ indicator.progress }}</td>
-          <td>{{ indicator.output.title }}</td>
+          <th>Name</th>
+          <th>Verification</th>
+          <th>Unit</th>
+          <th>Baseline</th>
+          <th>Target</th>
+          <th>Actual</th>
+          <th>Progress (%)</th>
+          <th>Output</th>
+          <th>Actions</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody id="indicatorTableBody">
+        <!-- Fetched via JavaScript -->
+      </tbody>
+    </table>
   </div>
-
-  <hr>
-
-
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("indicator-form");
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    const formData = new FormData(form);
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("indicatorForm");
+  const name = form.elements["name"];
+  const verification = form.elements["means_of_verification"];
+  const unit = form.elements["unit_of_measurement"];
+  const baseline = form.elements["baseline"];
+  const target = form.elements["target"];
+  const actual = form.elements["actual"];
+  const outputSelect = form.elements["output"];
+  const idField = form.elements["indicator_id"];
+  const formTitle = document.getElementById("form-title");
+  const submitBtn = document.getElementById("submitBtn");
+  const cancelBtn = document.getElementById("cancelEditBtn");
+  const csrfToken = form.querySelector("[name=csrfmiddlewaretoken]").value;
 
-    fetch("/api/v1/logframe/api/indicators/", {
-      method: "POST",
-      body: formData,
-      headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-      }
-    })
-      .then(response => {
-        if (response.ok) {
-          location.reload();
-        } else {
-          return response.json().then(data => {
-            alert("Error: " + JSON.stringify(data));
-          });
-        }
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        alert("Failed to add indicator.");
+  let editing = false;
+
+  // Load Outputs for Dropdown
+  function loadOutputs() {
+    fetch("/api/v1/logframe/api/outputs/")
+      .then(res => res.json())
+      .then(data => {
+        outputSelect.innerHTML = '<option value="">-- Choose Output --</option>';
+        data.forEach(output => {
+          const option = document.createElement("option");
+          option.value = output.id;
+          option.textContent = output.title;
+          outputSelect.appendChild(option);
+        });
       });
+  }
+
+  // Load Existing Indicators
+  function loadIndicators() {
+    fetch("/api/v1/logframe/api/indicators/")
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById("indicatorTableBody");
+        tbody.innerHTML = "";
+        data.forEach(ind => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${ind.name}</td>
+            <td>${ind.means_of_verification}</td>
+            <td>${ind.unit_of_measurement}</td>
+            <td>${ind.baseline}</td>
+            <td>${ind.target}</td>
+            <td>${ind.actual}</td>
+            <td>${ind.progress || Math.round((ind.actual / ind.target) * 100)}</td>
+            <td>${ind.output_title || ind.output.title}</td>
+            <td>
+              <button onclick="editIndicator(${ind.id}, \`${ind.name}\`, \`${ind.means_of_verification}\`, \`${ind.unit_of_measurement}\`, ${ind.baseline}, ${ind.target}, ${ind.actual}, ${ind.output})">Edit</button>
+              <button onclick="deleteIndicator(${ind.id})">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+  }
+
+  // Submit Form
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const method = editing ? "PUT" : "POST";
+    const url = editing
+      ? `/api/v1/logframe/api/indicators/${idField.value}/`
+      : `/api/v1/logframe/api/indicators/`;
+
+    const payload = {
+      name: name.value,
+      means_of_verification: verification.value,
+      unit_of_measurement: unit.value,
+      baseline: parseFloat(baseline.value),
+      target: parseFloat(target.value),
+      actual: parseFloat(actual.value),
+      output: outputSelect.value
+    };
+
+    fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(() => {
+        form.reset();
+        resetForm();
+        loadIndicators();
+      })
+      .catch(err => alert("Error saving indicator"));
   });
+
+  // Edit Indicator
+  window.editIndicator = function (id, nameVal, verify, unitVal, baseVal, targetVal, actualVal, outputVal) {
+    editing = true;
+    idField.value = id;
+    name.value = nameVal;
+    verification.value = verify;
+    unit.value = unitVal;
+    baseline.value = baseVal;
+    target.value = targetVal;
+    actual.value = actualVal;
+    outputSelect.value = outputVal;
+
+    formTitle.textContent = "Edit Indicator";
+    submitBtn.textContent = "Update Indicator";
+    cancelBtn.style.display = "inline";
+  };
+
+  // Cancel Edit
+  cancelBtn.addEventListener("click", () => {
+    form.reset();
+    resetForm();
+  });
+
+  function resetForm() {
+    editing = false;
+    formTitle.textContent = "Add New Indicator";
+    submitBtn.textContent = "Add Indicator";
+    cancelBtn.style.display = "none";
+    idField.value = "";
+  }
+
+  // Delete Indicator
+  window.deleteIndicator = function (id) {
+    if (confirm("Delete this indicator?")) {
+      fetch(`/api/v1/logframe/api/indicators/${id}/`, {
+        method: "DELETE",
+        headers: { "X-CSRFToken": csrfToken }
+      }).then(() => loadIndicators());
+    }
+  };
+
+  // Initialize
+  loadOutputs();
+  loadIndicators();
 });
 </script>
 {% endblock %}

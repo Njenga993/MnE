@@ -1,50 +1,55 @@
-.indicator-container{
+
+.indicator-container {
   max-width: 1000px;
   margin: 40px auto;
   padding: 30px;
-  background-color: #ffffff;
+  background-color: #faf7f7;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-.indicator-container h2 {
-  color: #145A32;
-  margin-bottom: 20px;
-  font-weight: 600;
-  font-size: 28px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* Form Section */
+.indicator-container h2 {
+  color: #145A32;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+/* Form section */
 .indicator-form {
   margin-bottom: 40px;
-  background-color: #f8f8f8;
+  background-color: #f9f9f9;
   padding: 20px;
   border-left: 5px solid #145A32;
   border-radius: 8px;
-  display: flex;
+}
+
+.indicator-form h3 {
+  margin-top: 0;
+  color: #145A32;
+  margin-bottom: 15px;
 }
 
 .indicator-form form {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
 }
 
 .indicator-form label {
-  margin-top: 15px;
+  margin-top: 12px;
   font-weight: 600;
   color: #333;
 }
 
 .indicator-form input,
-.indicator-form textarea,
 .indicator-form select {
-  margin-top: 8px;
-  padding: 12px;
+  margin-top: 5px;
+  padding: 10px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1rem;
-  resize: vertical;
-  width: 100%;
   box-sizing: border-box;
+  width: 100%;
 }
 
 .indicator-form button {
@@ -63,7 +68,7 @@
   background-color: #0e4426;
 }
 
-/* Table Section */
+/* Table section */
 .indicator-table {
   overflow-x: auto;
 }
@@ -71,41 +76,49 @@
 .indicator-table table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
-  min-width: 600px;
   margin-top: 20px;
+  min-width: 800px;
 }
 
-.indicator-table th {
+.indicator-table thead {
   background-color: #145A32;
   color: white;
-  text-align: left;
-  padding: 12px;
 }
 
+.indicator-table th,
 .indicator-table td {
-  padding: 12px;
-  border-bottom: 1px solid #ddd;
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.indicator-table tr:nth-child(even) {
-  background-color: #f9f9f9;
+.indicator-table tbody tr:nth-child(even) {
+  background-color: #f7f7f7;
 }
 
-/* Responsive Layout */
+.indicator-table tbody tr:hover {
+  background-color: #eef4ee;
+}
+
+/* Responsive styles */
 @media (max-width: 768px) {
   .indicator-container {
     padding: 20px;
   }
 
-  .indicator-form button {
+  .indicator-form label,
+  .indicator-form input,
+  .indicator-form select {
     font-size: 0.95rem;
+  }
+
+  .indicator-form button {
     padding: 10px;
+    font-size: 0.95rem;
   }
 
   .indicator-table table {
     font-size: 0.9rem;
-    min-width: unset;
   }
 
   .indicator-table th,
@@ -116,14 +129,13 @@
 
 @media (max-width: 480px) {
   .indicator-form input,
-  .indicator-form textarea,
   .indicator-form select {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .indicator-form button {
-    font-size: 0.9rem;
     padding: 8px;
+    font-size: 0.9rem;
   }
 
   .indicator-table th,

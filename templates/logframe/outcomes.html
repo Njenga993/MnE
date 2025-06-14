@@ -4,70 +4,170 @@
 
 {% block title %}Outcomes - MnE System{% endblock %}
 
-
 {% block content %}
 <div class="outcome-container">
   <h2>Outcomes</h2>
 
-  <!-- Add Outcome Form -->
-   <div class="outcome-form">
-  <h3>Add New Outcome</h3>
-  <form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Add Outcome</button>
-  </form>
+  <!-- Add/Edit Outcome Form -->
+  <div class="output-form">
+    <h3 id="formTitle">Add New Outcome</h3>
+    <form id="outcomeForm">
+      {% csrf_token %}
+      <input type="hidden" name="outcome_id" />
+      <input type="text" name="title" placeholder="Outcome Title" required />
+      <textarea name="description" placeholder="Outcome Description" required></textarea>
+      <select name="goal" required>
+        <option value="">Select Goal</option>
+      </select>
+      <button type="submit" id="outcomeSubmitBtn">Add Outcome</button>
+      <button type="button" id="cancelEditBtn" style="display: none;">Cancel</button>
+    </form>
   </div>
 
-
-    <!-- Outcomes Table -->
-     <div class="outcome-table">
-  <h3>Existing Outcomes</h3>
-  <table border="1" cellpadding="10" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Description</th>
-        <th>Goal</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for outcome in outcomes %}
+  <!-- Outcomes Table -->
+  <div class="outcome-table">
+    <h3>Existing Outcomes</h3>
+    <table border="1" cellpadding="10" cellspacing="0">
+      <thead>
         <tr>
-          <td>{{ outcome.title }}</td>
-          <td>{{ outcome.description }}</td>
-          <td>{{ outcome.goal.title }}</td>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Goal</th>
+          <th>Actions</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody id="outcomeTableBody">
+        <!-- Populated by JS -->
+      </tbody>
+    </table>
   </div>
-  <hr>
 </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-        const form = document.querySelector("form");
-        form.addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent default form submission
-            const formData = new FormData(form);
-            
-            fetch("/api/v1/logframe/api/outcomes/", {
-            method: "POST",
-            body: formData,
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token
-            }
-            })
-            .then(response => response.json())
-            .then(data => {
-            if (data.success) {
-                location.reload(); // Reload the page to see the new outcome
-            } else {
-                alert("Error adding outcome: " + data.error);
-            }
-            })
-            .catch(error => console.error("Error:", error));
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("outcomeForm");
+  const titleInput = form.elements["title"];
+  const descInput = form.elements["description"];
+  const goalSelect = form.elements["goal"];
+  const idInput = form.elements["outcome_id"];
+  const tableBody = document.getElementById("outcomeTableBody");
+  const submitBtn = document.getElementById("outcomeSubmitBtn");
+  const cancelBtn = document.getElementById("cancelEditBtn");
+  const formTitle = document.getElementById("formTitle");
+  const csrfToken = form.querySelector("[name=csrfmiddlewaretoken]").value;
+
+  let editing = false;
+
+  // Fetch goals to populate select
+  function loadGoals() {
+    fetch("/api/v1/logframe/api/goals/")
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(goal => {
+          const option = document.createElement("option");
+          option.value = goal.id;
+          option.textContent = goal.title;
+          goalSelect.appendChild(option);
         });
+      });
+  }
+
+  // Fetch and display all outcomes
+  function loadOutcomes() {
+    tableBody.innerHTML = "";
+    fetch("/api/v1/logframe/api/outcomes/")
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(outcome => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${outcome.title}</td>
+            <td>${outcome.description}</td>
+            <td>${outcome.goal_title || outcome.goal.title}</td>
+            <td>
+              <button onclick="editOutcome(${outcome.id}, \`${outcome.title.replace(/`/g, "\\`")}\`, \`${outcome.description.replace(/`/g, "\\`")}\`, ${outcome.goal})">Edit</button>
+              <button onclick="deleteOutcome(${outcome.id})">Delete</button>
+            </td>`;
+          tableBody.appendChild(row);
         });
-    </script>
-    {% endblock %}
+      });
+  }
+
+  // Handle form submit
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const method = editing ? "PUT" : "POST";
+    const url = editing
+      ? `/api/v1/logframe/api/outcomes/${idInput.value}/`
+      : `/api/v1/logframe/api/outcomes/`;
+
+    const payload = {
+      title: titleInput.value,
+      description: descInput.value,
+      goal: goalSelect.value
+    };
+
+    fetch(url, {
+      method,
+      headers: {
+        "X-CSRFToken": csrfToken,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(() => {
+      form.reset();
+      resetForm();
+      loadOutcomes();
+    });
+  });
+
+  // Enter edit mode
+  window.editOutcome = function (id, title, description, goal) {
+    editing = true;
+    formTitle.textContent = "Edit Outcome";
+    submitBtn.textContent = "Update Outcome";
+    cancelBtn.style.display = "inline";
+
+    idInput.value = id;
+    titleInput.value = title;
+    descInput.value = description;
+    goalSelect.value = goal;
+  };
+
+  // Cancel editing
+  cancelBtn.addEventListener("click", function () {
+    form.reset();
+    resetForm();
+  });
+
+  function resetForm() {
+    editing = false;
+    formTitle.textContent = "Add New Outcome";
+    submitBtn.textContent = "Add Outcome";
+    cancelBtn.style.display = "none";
+    idInput.value = "";
+  }
+
+  // Delete outcome
+  window.deleteOutcome = function (id) {
+    if (confirm("Are you sure you want to delete this outcome?")) {
+      fetch(`/api/v1/logframe/api/outcomes/${id}/`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRFToken": csrfToken
+        }
+      }).then(() => loadOutcomes());
+    }
+  };
+
+  // Initialize
+  loadGoals();
+  loadOutcomes();
+});
+</script>
+{% endblock %}

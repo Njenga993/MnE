@@ -3,6 +3,28 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+<style>
+/* Adjust chart sizing */
+.chart-section canvas {
+    max-width: 600px;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+}
+.chart-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+.chart-box {
+    flex: 1 1 300px;
+    max-width: 500px;
+}
+</style>
+
 {% endblock %}
 
 {% block content %}
@@ -40,15 +62,27 @@
             </div>
         </div>
     </section>
-<br><br>
+
+    <br><br>
+
     <section class="trends-section">
         <h2>Recent Indicators</h2>
+        <label for="categoryFilter">Filter by Category:</label>
+        <select id="categoryFilter">
+            <option value="all">All</option>
+            {% for cat in categories %}
+                <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+        </select>
+
         {% if progress_trends %}
         <ul class="trends-list">
             {% for trend in progress_trends %}
-            <li class="trend-item">
+            <li class="trend-item" data-category="{{ trend.category }}">
                 <div class="trend-header">
-                    <span class="indicator-name">{{ trend.name }}</span>
+                    <span class="indicator-name">
+                        <a href="{% url 'indicator-detail' trend.id %}">{{ trend.name }}</a>
+                    </span>
                     <span class="progress-value">{{ trend.progress }}%</span>
                 </div>
                 <div class="progress-bar mini">
@@ -61,9 +95,28 @@
         <p class="no-data">No recent indicators available.</p>
         {% endif %}
     </section>
+
+    <section class="chart-section">
+        <h2>Visual Overview</h2>
+        <div class="chart-wrapper">
+            <div class="chart-box">
+                <h3 class="chart-title">Overall Completion</h3>
+                <canvas id="progressChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3 class="chart-title">Top 5 Indicators</h3>
+                <canvas id="barChart"
+                     data-labels='{{ bar_labels|safe|escapejs }}'
+                     data-values='{{ bar_values|safe|escapejs }}'>
+                </canvas>
+
+            </div>
+        </div>
+    </section>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

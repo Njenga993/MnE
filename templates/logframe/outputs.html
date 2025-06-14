@@ -8,78 +8,171 @@
 <div class="output-container">
   <h2>Outputs</h2>
 
-    <!-- Add Output Form -->
-     <div class="output-form">
-<form method="POST" id="output-form">
-  {% csrf_token %}
-  
-  <label for="title">Title:</label>
-  <input type="text" name="title" required>
+  <!-- Add/Edit Output Form -->
+  <div class="output-form">
+    <h3 id="outputFormTitle">Add New Output</h3>
+    <form id="outputForm">
+      {% csrf_token %}
+      <input type="hidden" name="output_id" />
 
-  <label for="description">Description:</label>
-  <textarea name="description" rows="4" required></textarea>
+      <label for="title">Title:</label>
+      <input type="text" name="title" required>
 
-  <label for="outcome">Select Outcome:</label>
-  <select name="outcome" required>
-    <option value="">-- Choose Outcome --</option>
-    {% for outcome in outcomes %}
-      <option value="{{ outcome.id }}">{{ outcome.title }}</option>
-    {% endfor %}
-  </select>
+      <label for="description">Description:</label>
+      <textarea name="description" rows="4" required></textarea>
 
-  <button type="submit">Add Output</button>
-</form>
-</div>
+      <label for="outcome">Select Outcome:</label>
+      <select name="outcome" required>
+        <option value="">-- Choose Outcome --</option>
+      </select>
+
+      <button type="submit" id="outputSubmitBtn">Add Output</button>
+      <button type="button" id="cancelEditOutputBtn" style="display: none;">Cancel</button>
+    </form>
+  </div>
 
   <!-- Outputs Table -->
-   <div class="output-table">
-  <table>
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Description</th>
-        <th>Outcome</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for output in outputs %}
+  <div class="output-table">
+    <h3>Existing Outputs</h3>
+    <table>
+      <thead>
         <tr>
-          <td>{{ output.title }}</td>
-          <td>{{ output.description }}</td>
-          <td>{{ output.outcome.title }}</td>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Outcome</th>
+          <th>Actions</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody id="outputTableBody">
+        <!-- Filled dynamically -->
+      </tbody>
+    </table>
+  </div>
 </div>
-  <hr>
+{% endblock %}
 
-
-</div>
-
+{% block extra_js %}
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const form = document.querySelector("form");
-  form.addEventListener("submit", function(event) {
-    event.preventDefault();
-    const formData = new FormData(form);
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("outputForm");
+  const titleInput = form.elements["title"];
+  const descInput = form.elements["description"];
+  const outcomeSelect = form.elements["outcome"];
+  const idInput = form.elements["output_id"];
+  const submitBtn = document.getElementById("outputSubmitBtn");
+  const cancelBtn = document.getElementById("cancelEditOutputBtn");
+  const formTitle = document.getElementById("outputFormTitle");
+  const tableBody = document.getElementById("outputTableBody");
+  const csrfToken = form.querySelector("[name=csrfmiddlewaretoken]").value;
 
-    fetch("/api/v1/logframe/api/outputs/", {
-      method: "POST",
-      body: formData,
+  let editing = false;
+
+  // Load outcomes for dropdown
+  function loadOutcomes() {
+    fetch("/api/v1/logframe/api/outcomes/")
+      .then(res => res.json())
+      .then(data => {
+        outcomeSelect.innerHTML = '<option value="">-- Choose Outcome --</option>';
+        data.forEach(outcome => {
+          const option = document.createElement("option");
+          option.value = outcome.id;
+          option.textContent = outcome.title;
+          outcomeSelect.appendChild(option);
+        });
+      });
+  }
+
+  // Load outputs for table
+  function loadOutputs() {
+    tableBody.innerHTML = "";
+    fetch("/api/v1/logframe/api/outputs/")
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(output => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${output.title}</td>
+            <td>${output.description}</td>
+            <td>${output.outcome_title || output.outcome.title}</td>
+            <td>
+              <button onclick="editOutput(${output.id}, \`${output.title.replace(/`/g, "\\`")}\`, \`${output.description.replace(/`/g, "\\`")}\`, ${output.outcome})">Edit</button>
+              <button onclick="deleteOutput(${output.id})">Delete</button>
+            </td>`;
+          tableBody.appendChild(row);
+        });
+      });
+  }
+
+  // Submit (Add or Update)
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const method = editing ? "PUT" : "POST";
+    const url = editing
+      ? `/api/v1/logframe/api/outputs/${idInput.value}/`
+      : `/api/v1/logframe/api/outputs/`;
+
+    const payload = {
+      title: titleInput.value,
+      description: descInput.value,
+      outcome: outcomeSelect.value
+    };
+
+    fetch(url, {
+      method,
       headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-      }
+        "X-CSRFToken": csrfToken,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
     })
-    .then(response => response.json())
-    .then(data => {
-      location.reload();
-    })
-    .catch(error => {
-      console.error("Error:", error);
-      alert("An error occurred while adding the output.");
+    .then(() => {
+      form.reset();
+      resetForm();
+      loadOutputs();
     });
   });
+
+  // Enter edit mode
+  window.editOutput = function (id, title, description, outcome) {
+    editing = true;
+    formTitle.textContent = "Edit Output";
+    submitBtn.textContent = "Update Output";
+    cancelBtn.style.display = "inline";
+
+    idInput.value = id;
+    titleInput.value = title;
+    descInput.value = description;
+    outcomeSelect.value = outcome;
+  };
+
+  // Cancel edit
+  cancelBtn.addEventListener("click", function () {
+    form.reset();
+    resetForm();
+  });
+
+  function resetForm() {
+    editing = false;
+    formTitle.textContent = "Add New Output";
+    submitBtn.textContent = "Add Output";
+    cancelBtn.style.display = "none";
+    idInput.value = "";
+  }
+
+  // Delete output
+  window.deleteOutput = function (id) {
+    if (confirm("Are you sure you want to delete this output?")) {
+      fetch(`/api/v1/logframe/api/outputs/${id}/`, {
+        method: "DELETE",
+        headers: { "X-CSRFToken": csrfToken }
+      }).then(() => loadOutputs());
+    }
+  };
+
+  // Initialize
+  loadOutcomes();
+  loadOutputs();
 });
 </script>
 {% endblock %}

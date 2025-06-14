@@ -7,16 +7,19 @@
 <div class="goals-container">
   <h2>📌 Goals</h2>
 
-  <!-- Add Goal Form -->
-  <div class="goal-form">
-    <h3>Add New Goal</h3>
-    <form id="goalForm">
-      {% csrf_token %}
-      <input type="text" name="title" placeholder="Goal Title" required />
-      <textarea name="description" placeholder="Goal Description" required></textarea>
-      <button type="submit">Add Goal</button>
-    </form>
-  </div>
+<!-- Add/Edit Goal Form -->
+<div class="output-form">
+  <h3 id="formTitle">Add New Goal</h3>
+  <form id="goalForm">
+    {% csrf_token %}
+    <input type="hidden" name="goal_id" /> <!-- hidden input for ID -->
+    <input type="text" name="title" placeholder="Goal Title" required />
+    <textarea name="description" placeholder="Goal Description" required></textarea>
+    <button type="submit" id="goalSubmitBtn">Add Goal</button>
+    <button type="button" id="cancelEditBtn" style="display: none;">Cancel</button>
+  </form>
+</div>
+
 
   <!-- Goal Table -->
   <div class="goal-table">
@@ -28,6 +31,7 @@
           <th>Title</th>
           <th>Description</th>
           <th>Created At</th>
+          <th>Actions</th> 
         </tr>
       </thead>
       <tbody id="goalTableBody">
@@ -36,58 +40,118 @@
     </table>
   </div>
 </div>
+
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("goalForm");
+  const goalForm = document.getElementById("goalForm");
+  const titleInput = goalForm.elements["title"];
+  const descInput = goalForm.elements["description"];
+  const idInput = goalForm.elements["goal_id"];
+  const formTitle = document.getElementById("formTitle");
+  const submitBtn = document.getElementById("goalSubmitBtn");
+  const cancelBtn = document.getElementById("cancelEditBtn");
   const tableBody = document.getElementById("goalTableBody");
 
-  // Fetch existing goals
-  fetch("/api/v1/logframe/api/goals/")
-    .then(res => res.json())
-    .then(data => {
-      data.forEach(goal => {
-        const row = `
-          <tr>
+  let editing = false;
+
+  // Load existing goals
+  function loadGoals() {
+    tableBody.innerHTML = "";
+    fetch("/api/v1/logframe/api/goals/")
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(goal => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
             <td>${goal.id}</td>
             <td>${goal.title}</td>
             <td>${goal.description}</td>
             <td>${new Date(goal.created_at).toLocaleString()}</td>
-          </tr>`;
-        tableBody.innerHTML += row;
+            <td>
+              <button onclick="editGoal(${goal.id}, \`${goal.title.replace(/`/g, "\\`")}\`, \`${goal.description.replace(/`/g, "\\`")}\`)">Edit</button>
+              <button onclick="deleteGoal(${goal.id})">Delete</button>
+            </td>`;
+          tableBody.appendChild(row);
+        });
       });
-    });
+  }
 
-  // Handle form submission
-  form.addEventListener("submit", function (e) {
+  // Add or update goal
+  goalForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    const formData = new FormData(form);
-    fetch("/api/v1/logframe/api/goals/", {
-      method: "POST",
+    const id = idInput.value;
+    const method = editing ? "PUT" : "POST";
+    const url = editing
+      ? `/api/v1/logframe/api/goals/${id}/`
+      : "/api/v1/logframe/api/goals/";
+
+    const csrfToken = goalForm.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    fetch(url, {
+      method,
       headers: {
-        "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+        "X-CSRFToken": csrfToken,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        title: formData.get("title"),
-        description: formData.get("description")
+        title: titleInput.value,
+        description: descInput.value
       })
     })
     .then(res => res.json())
-    .then(newGoal => {
-      const row = `
-        <tr>
-          <td>${newGoal.id}</td>
-          <td>${newGoal.title}</td>
-          <td>${newGoal.description}</td>
-          <td>${new Date(newGoal.created_at).toLocaleString()}</td>
-        </tr>`;
-      tableBody.innerHTML += row;
-      form.reset();
+    .then(() => {
+      goalForm.reset();
+      resetFormState();
+      loadGoals();
     });
   });
+
+  // Enter edit mode
+  window.editGoal = function (id, title, description) {
+    editing = true;
+    formTitle.textContent = "Edit Goal";
+    submitBtn.textContent = "Update Goal";
+    cancelBtn.style.display = "inline";
+
+    idInput.value = id;
+    titleInput.value = title;
+    descInput.value = description;
+  };
+
+  // Cancel edit
+  cancelBtn.addEventListener("click", function () {
+    goalForm.reset();
+    resetFormState();
+  });
+
+  function resetFormState() {
+    editing = false;
+    formTitle.textContent = "Add New Goal";
+    submitBtn.textContent = "Add Goal";
+    cancelBtn.style.display = "none";
+    idInput.value = "";
+  }
+
+  // Delete goal
+  window.deleteGoal = function (id) {
+    const csrfToken = goalForm.querySelector("[name=csrfmiddlewaretoken]").value;
+    if (confirm("Are you sure you want to delete this goal?")) {
+      fetch(`/api/v1/logframe/api/goals/${id}/`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRFToken": csrfToken
+        }
+      }).then(() => loadGoals());
+    }
+  };
+
+  // Init
+  loadGoals();
 });
 </script>
+
 {% endblock %}
