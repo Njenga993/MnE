@@ -6,10 +6,23 @@
 
 
 {% block content %}
-<div class="container">
+<div class="outcome-container">
   <h2>Outcomes</h2>
 
-  <!-- Outcomes Table -->
+  <!-- Add Outcome Form -->
+   <div class="outcome-form">
+  <h3>Add New Outcome</h3>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Outcome</button>
+  </form>
+  </div>
+
+
+    <!-- Outcomes Table -->
+     <div class="outcome-table">
+  <h3>Existing Outcomes</h3>
   <table border="1" cellpadding="10" cellspacing="0">
     <thead>
       <tr>
@@ -28,16 +41,8 @@
       {% endfor %}
     </tbody>
   </table>
-
+  </div>
   <hr>
-
-  <!-- Add Outcome Form -->
-  <h3>Add New Outcome</h3>
-  <form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Add Outcome</button>
-  </form>
 </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {

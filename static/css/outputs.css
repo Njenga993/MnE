@@ -1,98 +1,133 @@
-/* outputs.css */
-.container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: #fff;
+.output-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  font-family: 'Segoe UI', sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-h2, h3 {
-  color: #14532d;
-  text-align: center;
+.output-container h2 {
+  color: #145A32;
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 28px;
 }
 
-table {
+/* Form Section */
+.output-form {
+  margin-bottom: 40px;
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-left: 5px solid #145A32;
+  border-radius: 8px;
+}
+
+.output-form form {
+  display: flex;
+  flex-direction: column;
+}
+
+.output-form label {
+  margin-top: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.output-form input,
+.output-form textarea,
+.output-form select {
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.output-form button {
+  margin-top: 20px;
+  background-color: #145A32;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.output-form button:hover {
+  background-color: #0e4426;
+}
+
+/* Table Section */
+.output-table {
+  overflow-x: auto;
+}
+
+.output-table table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  min-width: 600px;
+  margin-top: 20px;
 }
 
-table th {
-  background-color: #14532d;
+.output-table th {
+  background-color: #145A32;
   color: white;
-  padding: 10px;
   text-align: left;
+  padding: 12px;
 }
 
-table td {
-  padding: 10px;
+.output-table td {
+  padding: 12px;
   border-bottom: 1px solid #ddd;
 }
 
-table tr:nth-child(even) {
+.output-table tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-form input,
-form select,
-form textarea {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 100%;
-}
-
-button[type="submit"] {
-  background-color: #14532d;
-  color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-button[type="submit"]:hover {
-  background-color: #0e3e21;
-}
-/* Responsive adjustments */
+/* Responsive Layout */
 @media (max-width: 768px) {
-  .container {
-    padding: 1rem;
+  .output-container {
+    padding: 20px;
   }
 
-  table th, table td {
-    font-size: 0.9rem;
-    padding: 8px;
+  .output-form button {
+    font-size: 0.95rem;
+    padding: 10px;
   }
 
-  form input,
-  form select,
-  form textarea {
+  .output-table table {
     font-size: 0.9rem;
-    padding: 8px;
+    min-width: unset;
   }
 
-  button[type="submit"] {
-    font-size: 0.9rem;
-    padding: 8px;
+  .output-table th,
+  .output-table td {
+    padding: 10px;
   }
 }
-/* Additional styles for better readability */
-body {
-  background-color: #f0f4f8;
-  color: #333;
-}
-.container {
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+
+@media (max-width: 480px) {
+  .output-form input,
+  .output-form textarea,
+  .output-form select {
+    font-size: 0.95rem;
+  }
+
+  .output-form button {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+
+  .output-table th,
+  .output-table td {
+    font-size: 0.85rem;
+  }
 }

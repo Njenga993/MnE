@@ -5,42 +5,11 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/indicators.css' %}">
 
-<div class="container">
+<div class="indicator-container">
   <h2>Indicators</h2>
 
-  <!-- Indicator Table -->
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Means of Verification</th>
-        <th>Unit</th>
-        <th>Baseline</th>
-        <th>Target</th>
-        <th>Actual</th>
-        <th>Progress (%)</th>
-        <th>Output</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for indicator in indicators %}
-        <tr>
-          <td>{{ indicator.name }}</td>
-          <td>{{ indicator.means_of_verification }}</td>
-          <td>{{ indicator.unit_of_measurement }}</td>
-          <td>{{ indicator.baseline }}</td>
-          <td>{{ indicator.target }}</td>
-          <td>{{ indicator.actual }}</td>
-          <td>{{ indicator.progress }}</td>
-          <td>{{ indicator.output.title }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <hr>
-
-  <!-- Add New Indicator -->
+    <!-- Add New Indicator -->
+     <div class="indicator-form">
   <h3>Add New Indicator</h3>
   <form id="indicator-form" method="POST">
     {% csrf_token %}
@@ -73,6 +42,43 @@
 
     <button type="submit">Add Indicator</button>
   </form>
+  </div>
+
+  <!-- Indicator Table -->
+   <div class="indicator-table">
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Means of Verification</th>
+        <th>Unit</th>
+        <th>Baseline</th>
+        <th>Target</th>
+        <th>Actual</th>
+        <th>Progress (%)</th>
+        <th>Output</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for indicator in indicators %}
+        <tr>
+          <td>{{ indicator.name }}</td>
+          <td>{{ indicator.means_of_verification }}</td>
+          <td>{{ indicator.unit_of_measurement }}</td>
+          <td>{{ indicator.baseline }}</td>
+          <td>{{ indicator.target }}</td>
+          <td>{{ indicator.actual }}</td>
+          <td>{{ indicator.progress }}</td>
+          <td>{{ indicator.output.title }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+
+  <hr>
+
+
 </div>
 
 <script>

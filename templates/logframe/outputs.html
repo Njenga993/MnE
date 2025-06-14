@@ -5,32 +5,11 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/outputs.css' %}">
 
-<div class="container">
+<div class="output-container">
   <h2>Outputs</h2>
 
-  <!-- Outputs Table -->
-  <table>
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Description</th>
-        <th>Outcome</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for output in outputs %}
-        <tr>
-          <td>{{ output.title }}</td>
-          <td>{{ output.description }}</td>
-          <td>{{ output.outcome.title }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <hr>
-
-  <!-- Add Output Form -->
+    <!-- Add Output Form -->
+     <div class="output-form">
 <form method="POST" id="output-form">
   {% csrf_token %}
   
@@ -50,6 +29,32 @@
 
   <button type="submit">Add Output</button>
 </form>
+</div>
+
+  <!-- Outputs Table -->
+   <div class="output-table">
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Outcome</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for output in outputs %}
+        <tr>
+          <td>{{ output.title }}</td>
+          <td>{{ output.description }}</td>
+          <td>{{ output.outcome.title }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+  <hr>
+
+
 </div>
 
 <script>
