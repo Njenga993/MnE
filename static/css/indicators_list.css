@@ -1,0 +1,78 @@
+.indicator-list-container {
+    padding: 2rem;
+    background: #fff;
+    overflow-x: auto;
+}
+
+.add-button {
+  background-color: #007f5f;
+  color: white;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.add-button:hover {
+  background-color: #005f45;
+}
+
+
+/* Heading Styling */
+.indicator-list-container h2 {
+    margin-bottom: 1rem;
+    color: #064635;
+    font-size: 1.5rem;
+}
+
+/* Responsive Table */
+#indicator-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    min-width: 600px; /* Allows horizontal scroll on very small screens */
+}
+
+#indicator-table th,
+#indicator-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+#indicator-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+#indicator-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Scrollable container for smaller devices */
+@media (max-width: 768px) {
+    .indicator-list-container {
+        padding: 1rem;
+    }
+
+    #indicator-table {
+        font-size: 0.85rem;
+    }
+
+    .indicator-list-container h2 {
+        font-size: 1.25rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    #indicator-table {
+        font-size: 0.8rem;
+        min-width: 100%;
+    }
+
+    #indicator-table th,
+    #indicator-table td {
+        padding: 6px;
+    }
+}

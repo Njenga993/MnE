@@ -1,16 +1,19 @@
+from . import views
 from django.urls import path
 from .views import (
-    IndicatorListView,
+    IndicatorListTemplateView,
+    IndicatorListAPIView,
     IndicatorDetailView,
     export_indicators_csv,
     export_indicators_pdf,
+    
 )
 
-app_name = "indicators"
-
 urlpatterns = [
-    path('', IndicatorListView.as_view(), name='list'),
-    path('<int:pk>/', IndicatorDetailView.as_view(), name='detail'),
-    path('export/csv/', export_indicators_csv, name='export_csv'),
-    path('export/pdf/', export_indicators_pdf, name='export_pdf'),
+    path('indicators/', IndicatorListTemplateView.as_view(), name='indicator_list_page'),
+    path('api/v1/indicators/', IndicatorListAPIView.as_view(), name='indicator_list_api'),
+    path('api/v1/indicators/<int:pk>/', IndicatorDetailView.as_view(), name='indicator_detail_api'),
+    path('indicators/<int:pk>/', views.indicator_detail_page, name='indicator-detail'),
+    path('indicators/export/csv/', export_indicators_csv, name='export_indicators_csv'),
+    path('indicators/export/pdf/', export_indicators_pdf, name='export_indicators_pdf'),
 ]

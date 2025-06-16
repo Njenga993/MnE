@@ -76,21 +76,21 @@
         </select>
 
         {% if progress_trends %}
-        <ul class="trends-list">
-            {% for trend in progress_trends %}
-            <li class="trend-item" data-category="{{ trend.category }}">
-                <div class="trend-header">
-                    <span class="indicator-name">
-                        <a href="{% url 'indicator-detail' trend.id %}">{{ trend.name }}</a>
-                    </span>
-                    <span class="progress-value">{{ trend.progress }}%</span>
-                </div>
+<ul class="trends-list">
+    {% for trend in progress_trends %}
+    <li class="trend-item" data-category="{{ trend.category }}">
+        <a href="{% url 'indicator-detail' trend.id %}" class="indicator-card-link">
+            <div class="indicator-card">
+                <h3>{{ trend.name }}</h3>
+                <p>Progress: {{ trend.progress }}%</p>
                 <div class="progress-bar mini">
                     <div class="progress-fill" style="width: {{ trend.progress }}%"></div>
                 </div>
-            </li>
-            {% endfor %}
-        </ul>
+            </div>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
         {% else %}
         <p class="no-data">No recent indicators available.</p>
         {% endif %}

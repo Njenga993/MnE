@@ -4,6 +4,7 @@
   padding: 1rem;
   background-color: #fff;
   color: #14532d;
+
 }
 
 header {
@@ -74,11 +75,9 @@ header h2 {
   background: #4caf50;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   padding-right: 10px;
-  color: white;
+  color: rgb(8, 8, 8);
   font-weight: bold;
-  transition: width 1s ease-in-out;
   position: relative;
 }
 
@@ -103,3 +102,54 @@ header h2 {
   color: #999;
   padding: 1rem;
 }
+
+.indicator-name{
+  color: #05883c;
+
+}
+
+.indicator-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease-in-out;
+}
+
+.indicator-card-link:hover {
+    transform: scale(1.02);
+}
+
+.indicator-card {
+    background: #fdfdfd;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+.indicator-card h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    color: #064635;
+}
+
+.indicator-card p {
+    margin: 0.2rem 0 0.5rem;
+    color: #333;
+}
+
+.progress-bar.mini {
+    background: #eee;
+    border-radius: 4px;
+    height: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #007f5f;
+    transition: width 0.4s ease;
+}
+

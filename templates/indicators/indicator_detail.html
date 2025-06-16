@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .indicator-detail-wrapper {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+    }
+
+    .indicator-detail-wrapper h2 {
+        color: #064635;
+        margin-bottom: 1rem;
+    }
+
+    .indicator-field {
+        margin-bottom: 1rem;
+    }
+
+    .indicator-label {
+        font-weight: bold;
+        color: #222;
+        display: inline-block;
+        width: 220px;
+    }
+
+    .progress-bar {
+        height: 20px;
+        background: #eee;
+        border-radius: 4px;
+        overflow: hidden;
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background-color: #007f5f;
+        text-align: right;
+        padding-right: 8px;
+        color: rgb(8, 8, 8);
+        font-size: 0.85rem;
+        width: {{ indicator.progress|floatformat:2 }}%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="indicator-detail-wrapper">
+    <h2>Indicator Details</h2>
+
+    <div class="indicator-field">
+        <span class="indicator-label">ID:</span> {{ indicator.id }}
+    </div>
+
+    <div class="indicator-field">
+        <span class="indicator-label">Name:</span> {{ indicator.name }}
+    </div>
+
+    <div class="indicator-field">
+        <span class="indicator-label">Output:</span> {{ indicator.output }}
+    </div>
+
+    <div class="indicator-field">
+        <span class="indicator-label">Description:</span> {{ indicator.description }}
+    </div>
+
+    <div class="indicator-field">
+        <span class="indicator-label">Unit of Measurement:</span> {{ indicator.unit }}
+    </div>
+
+    <div class="indicator-field">
+        <span class="indicator-label">Baseline:</span> {{ indicator.baseline }}
+    </div>
+
+    <div class="indicator-field">
+        <span class="indicator-label">Target:</span> {{ indicator.target }}
+    </div>
+
+    <div class="indicator-field">
+        <span class="indicator-label">Actual:</span> {{ indicator.actual }}
+    </div>
+
+    <div class="indicator-field">
+        <span class="indicator-label">Progress:</span> {{ indicator.progress|floatformat:2 }}%
+        <div class="progress-bar">
+            <div class="progress-fill">{{ indicator.progress|floatformat:2 }}%</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

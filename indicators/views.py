@@ -4,6 +4,23 @@ from .serializers import IndicatorSerializer
 from .resources import IndicatorResource
 from reportlab.pdfgen import canvas
 from django.http import HttpResponse
+from django.views.generic import TemplateView
+from django.shortcuts import get_object_or_404, render
+
+
+# HTML page view (for rendering the template)
+class IndicatorListTemplateView(TemplateView):
+    template_name = 'indicators/indicator_list.html'
+
+# API view (returns JSON)
+class IndicatorListAPIView(generics.ListAPIView):
+    queryset = Indicator.objects.all()
+    serializer_class = IndicatorSerializer    
+
+def indicator_detail_page(request, pk):
+    indicator = get_object_or_404(Indicator, pk=pk)
+    return render(request, 'indicators/indicator_detail.html', {'indicator': indicator})
+
 
 # CSV export
 def export_indicators_csv(request):
@@ -35,9 +52,6 @@ def export_indicators_pdf(request):
     return response
 
 # API views
-class IndicatorListView(generics.ListAPIView):
-    queryset = Indicator.objects.all()
-    serializer_class = IndicatorSerializer
 
 class IndicatorDetailView(generics.RetrieveAPIView):
     queryset = Indicator.objects.all()
