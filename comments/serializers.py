@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Comment
 from django.contrib.contenttypes.models import ContentType
 
+
+# serializers.py
 class CommentSerializer(serializers.ModelSerializer):
     content_type = serializers.SlugRelatedField(
         slug_field='model',
@@ -11,9 +13,5 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'author_name', 'content', 'timestamp', 'content_type', 'object_id']
+        fields = ['id', 'author', 'author_name', 'content', 'attachment', 'timestamp', 'content_type', 'object_id']
         read_only_fields = ['id', 'timestamp', 'author']
-        extra_kwargs = {
-            'content': {'required': True},
-            'object_id': {'required': True}
-        }

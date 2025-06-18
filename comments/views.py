@@ -3,6 +3,32 @@ from rest_framework import generics, permissions
 from .models import Comment
 from .serializers import CommentSerializer
 from django.contrib.contenttypes.models import ContentType
+from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+
+@login_required
+def comment_ui_view(request):
+    ct = ContentType.objects.get(model="indicator")  # or dynamic via ?content_type=&object_id=
+    obj_id = 1  # Example; you can get from request.GET or a URL param
+
+    if request.method == "POST":
+        content = request.POST.get("content")
+        attachment = request.FILES.get("attachment")  # to be added to model later
+        Comment.objects.create(
+            author=request.user,
+            content=content,
+            content_type=ct,
+            object_id=obj_id
+        )
+        return redirect(request.path)
+
+    comments = Comment.objects.filter(content_type=ct, object_id=obj_id).select_related("author").order_by("-timestamp")
+    return render(request, "comments/comment_ui.html", {"comments": comments})
+
+class CommentUIPage(TemplateView):
+    template_name = "comments/comments_ui.html"
+
 
 class CommentListCreateView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer

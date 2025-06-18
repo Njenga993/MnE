@@ -5,6 +5,8 @@
   align-items: center;
   padding: 20px;
 }
+
+
 .goals.container h1 {
   font-size: 2rem;
   color: #333;
@@ -270,4 +272,13 @@
 }
 .goal-table .actions a:focus:not(:focus-visible) {
   outline: none;
+}
+.view-logframe-btn {
+    display: inline-block;
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    background-color: #004d40;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
 }

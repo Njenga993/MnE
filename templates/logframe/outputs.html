@@ -4,9 +4,22 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/outputs.css' %}">
+<style>
+  .view-logframe-btn {
+    display: inline-block;
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    background-color: #004d40;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+</style>
 
 <div class="output-container">
   <h2>Outputs</h2>
+
+  <a href="{% url 'logframe-home' %}" class="view-logframe-btn">Back to Logframe</a>
 
   <!-- Add/Edit Output Form -->
   <div class="output-form">

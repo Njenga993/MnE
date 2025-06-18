@@ -1,0 +1,23 @@
+<form method="POST" enctype="multipart/form-data" id="comment-form">
+  {% csrf_token %}
+  <textarea name="content" placeholder="Write your comment..." required></textarea><br>
+  <input type="file" name="attachment"><br>
+  <input type="hidden" name="content_type" value="{{ content_type }}">
+  <input type="hidden" name="object_id" value="{{ object_id }}">
+  <button type="submit">Submit Comment</button>
+</form>
+
+<h3>Comments:</h3>
+<ul>
+  {% for comment in comments %}
+    <li>
+      <strong>{{ comment.author.username }}</strong> - {{ comment.timestamp|date:"SHORT_DATETIME_FORMAT" }}<br>
+      {{ comment.content }}
+      {% if comment.attachment %}
+        <br><a href="{{ comment.attachment.url }}" target="_blank">[View Attachment]</a>
+      {% endif %}
+    </li>
+  {% empty %}
+    <p>No comments yet.</p>
+  {% endfor %}
+</ul>
