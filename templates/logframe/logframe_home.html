@@ -1,28 +1,65 @@
-<!-- templates/logframe/logframe_home.html -->
 {% extends "base.html" %}
-
 {% block title %}Logframe - MnE System{% endblock %}
+{% load static %}
+
+<stylesheet href="{% static 'css/logframe.css' %}">
+<style>
+.logframe-links a {
+  margin-right: 1rem;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+
+}
+
+</style>
 
 {% block content %}
 <div class="container">
-    <h1 class="page-title">📊 Logframe Dashboard</h1>
-    <div class="logframe-grid">
-        <a href="/api/v1/logframe/goals/" class="logframe-box goal">
-            <h2>🎯 Goals</h2>
-            <p>View and manage high-level goals</p>
-        </a>
-        <a href="/api/v1/logframe/outcomes/" class="logframe-box outcome">
-            <h2>📈 Outcomes</h2>
-            <p>Track outcome progress</p>
-        </a>
-        <a href="/api/v1/logframe/outputs/" class="logframe-box output">
-            <h2>⚙️ Outputs</h2>
-            <p>Manage output activities</p>
-        </a>
-        <a href="/api/v1/logframe/indicators/" class="logframe-box indicator">
-            <h2>📍 Indicators</h2>
-            <p>Measure results with indicators</p>
-        </a>
+  <h1 class="page-title">📊 Logframe Dashboard</h1>
+
+  <!-- Project Selection Form -->
+  <form method="get" style="margin-bottom: 1rem;">
+    <label for="project">Choose Project:</label>
+    <select name="project" id="project" onchange="this.form.submit()">
+      <option value="">-- Select Project --</option>
+      {% for project in projects %}
+        <option value="{{ project.id }}" {% if project.id|stringformat:"s" == selected_project_id %}selected{% endif %}>
+          {{ project.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </form>
+
+  {% if selected_project_id %}
+    <p>✅ Project selected: {{ selected_project_id }}</p>
+    <div class="logframe-links">
+      <a href="{% url 'goals-ui' %}?project={{ selected_project_id }}" class="view-logframe-btn">➕ Add Goal</a>
+      <a href="{% url 'outcomes-ui' %}?project={{ selected_project_id }}" class="view-logframe-btn">➕ Add Outcome</a>
+      <a href="{% url 'outputs-ui' %}?project={{ selected_project_id }}" class="view-logframe-btn">➕ Add Output</a>
+      <a href="{% url 'indicators-ui' %}?project={{ selected_project_id }}"class="view-logframe-btn">➕ Add Indicator</a>
     </div>
+  {% else %}
+    <p style="color: red;">⚠️ Please select a project to manage the logframe.</p>
+  {% endif %}
+
+  <!-- Grid -->
+  <div class="logframe-grid" style="margin-top: 2rem;">
+    <a href="{% url 'goals-ui' %}?project={{ selected_project_id }}" class="logframe-box goal">
+      <h2>🎯 Goals</h2>
+      <p>View and manage high-level goals</p>
+    </a>
+    <a href="{% url 'outcomes-ui' %}?project={{ selected_project_id }}" class="logframe-box outcome">
+      <h2>📈 Outcomes</h2>
+      <p>Track outcome progress</p>
+    </a>
+    <a href="{% url 'outputs-ui' %}?project={{ selected_project_id }}" class="logframe-box output">
+      <h2>⚙️ Outputs</h2>
+      <p>Manage output activities</p>
+    </a>
+    <a href="{% url 'indicators-ui' %}?project={{ selected_project_id }}" class="logframe-box indicator">
+      <h2>📍 Indicators</h2>
+      <p>Measure results with indicators</p>
+    </a>
+  </div>
 </div>
 {% endblock %}

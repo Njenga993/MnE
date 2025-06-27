@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Projects{% endblock %}
+
+{% block content %}
+<div class="container project-list-container">
+  <div class="project-header">
+    <h2>Your Projects</h2>
+    <a href="{% url 'project-create' %}" class="btn btn-primary">+ Create New Project</a>
+  </div>
+  <ul class="project-list">
+    {% for project in projects %}
+      <li class="project-card">
+        <a href="{% url 'project-detail' project.pk %}">
+          <h4>{{ project.name }}</h4>
+          <p>{{ project.description|truncatewords:25 }}</p>
+          <div class="project-meta">
+            <span><strong>Donor:</strong> {{ project.donor }}</span>
+            <span><strong>Budget:</strong> ${{ project.total_budget }}</span>
+            <span><strong>Period:</strong> {{ project.start_date }} → {{ project.end_date }}</span>
+          </div>
+        </a>
+      </li>
+    {% empty %}
+      <li class="no-projects">No projects found.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.project-list-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.project-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.project-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.project-card {
+  background: #f9f9f9;
+  margin-bottom: 1rem;
+  padding: 1rem 1.5rem;
+  border-left: 5px solid #007bff;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.project-card:hover {
+  background: #eef4ff;
+  transform: translateY(-2px);
+}
+
+.project-card h4 {
+  margin-bottom: 0.5rem;
+  color: #007bff;
+}
+
+.project-card p {
+  margin: 0.3rem 0 0.8rem;
+  color: #555;
+}
+
+.project-meta {
+  font-size: 0.9rem;
+  color: #666;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.no-projects {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+}
+</style>
+{% endblock %}

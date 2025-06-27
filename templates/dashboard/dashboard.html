@@ -1,35 +1,49 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}Dashboard - Monitoring & Evaluation{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 <style>
-.chart-section canvas {
-    max-width: 600px;
-    height: auto;
-    margin: 0 auto;
-    display: block;
-}
-.chart-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    justify-content: center;
-    margin-top: 2rem;
-}
-.chart-box {
-    flex: 1 1 300px;
-    max-width: 500px;
-}
-.view-logframe-btn {
-    display: inline-block;
-    margin: 1rem 0;
-    padding: 0.5rem 1rem;
-    background-color: #004d40;
-    color: white;
-    text-decoration: none;
-    border-radius: 4px;
-}
+    .project-selector {
+        margin: 1rem 0;
+    }
+    .project-selector select {
+        padding: 0.5rem;
+        font-size: 1rem;
+    }
+    .chart-section canvas {
+        max-width: 600px;
+        height: auto;
+        margin: 0 auto;
+        display: block;
+    }
+    .chart-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    .chart-box {
+        flex: 1 1 300px;
+        max-width: 500px;
+    }
+    .view-logframe-btn {
+        display: inline-block;
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        background-color: #004d40;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+    .no-data {
+        color: #c00;
+        margin: 2rem 0;
+        font-weight: bold;
+    }
 </style>
 {% endblock %}
 
@@ -38,82 +52,101 @@
     <header>
         <h2>Dashboard Overview</h2>
         <p>Welcome, {{ request.user.get_full_name|default:request.user.username }}!</p>
-        <p>Here you can view the overall progress of your M&E activities.</p>
+        <p>Select a project to view its progress.</p>
     </header>
 
-    <section class="summary-cards">
-        <div class="card"><h3>Goals</h3><p>{{ totals.goals|default:0 }}</p></div>
-        <div class="card"><h3>Outcomes</h3><p>{{ totals.outcomes|default:0 }}</p></div>
-        <div class="card"><h3>Outputs</h3><p>{{ totals.outputs|default:0 }}</p></div>
-        <div class="card"><h3>Indicators</h3><p>{{ totals.indicators|default:0 }}</p></div>
-    </section>
-
-    <section class="progress-section">
-        <h2>Overall Progress</h2>
-        <div class="progress-bar overall">
-            <div class="progress-fill" style="width: {{ average_progress }}%">
-                <span>{{ average_progress }}%</span>
-            </div>
-        </div>
-    </section>
-
-    <a href="{% url 'logframe-home' %}" class="view-logframe-btn">View Full Logframe</a>
-
-    <section class="trends-section">
-        <h2>All Indicators</h2>
-        <label for="categoryFilter">Filter by Category:</label>
-        <select id="categoryFilter">
-            <option value="all">All</option>
-            {% for cat in categories %}
-                <option value="{{ cat }}">{{ cat }}</option>
+    <!-- Project Selector -->
+    <form method="get" class="project-selector">
+        <label for="project">Choose Project:</label>
+        <select name="project" id="project" onchange="this.form.submit()">
+            <option value="">-- Select Project --</option>
+            {% for project in projects %}
+                <option value="{{ project.id }}" {% if project.id|stringformat:"s" == selected_project_id %}selected{% endif %}>
+                    {{ project.name }}
+                </option>
             {% endfor %}
         </select>
+    </form>
 
-        {% if progress_trends %}
-        <ul class="trends-list">
-            {% for trend in progress_trends %}
-            <li class="trend-item" data-category="{{ trend.category }}">
-                <a href="{% url 'indicator-detail' trend.id %}" class="indicator-card-link">
-                    <div class="indicator-card">
-                        <h3>{{ trend.name }}</h3>
-                        <p>Goal: {{ trend.goal }}</p>
-                        <p>Output: {{ trend.output }}</p>
-                        <p>Progress: {{ trend.progress }}%</p>
-                        <div class="progress-bar mini">
-                            <div class="progress-fill" style="width: {{ trend.progress }}%"></div>
-                        </div>
-                         <span class="comment-badge">{{ trend.comment_count }} Comments</span>
-                    </div>
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p class="no-data">No indicators available.</p>
-        {% endif %}
-    </section>
-<br>
-     <div class="card">
-       <h3>Total Comments</h3>
-          <p>{{ total_comments }}</p>
-    </div>
-<br>
-    <section class="chart-section">
-        <h2>Visual Overview</h2>
-        <div class="chart-wrapper">
-            <div class="chart-box">
-                <h3 class="chart-title">Overall Completion</h3>
-                <canvas id="progressChart"></canvas>
+    {% if selected_project_id %}
+        <section class="summary-cards">
+            <div class="card"><h3>Goals</h3><p>{{ totals.goals|default:0 }}</p></div>
+            <div class="card"><h3>Outcomes</h3><p>{{ totals.outcomes|default:0 }}</p></div>
+            <div class="card"><h3>Outputs</h3><p>{{ totals.outputs|default:0 }}</p></div>
+            <div class="card"><h3>Indicators</h3><p>{{ totals.indicators|default:0 }}</p></div>
+        </section>
+
+        <section class="progress-section">
+            <h2>Overall Progress</h2>
+            <div class="progress-bar overall">
+                <div class="progress-fill" style="width: {{ average_progress }}%">
+                    <span>{{ average_progress }}%</span>
+                </div>
             </div>
-            <div class="chart-box">
-                <h3 class="chart-title">Top Indicators</h3>
-                <canvas id="barChart"
-                     data-labels='{{ bar_labels|safe|escapejs }}'
-                     data-values='{{ bar_values|safe|escapejs }}'>
-                </canvas>
-            </div>
+        </section>
+
+        <a href="{% url 'logframe-home' %}?project={{ selected_project_id }}" class="view-logframe-btn">
+            View Full Logframe
+        </a>
+
+        <section class="trends-section">
+            <h2>All Indicators</h2>
+            <label for="categoryFilter">Filter by Category:</label>
+            <select id="categoryFilter">
+                <option value="all">All</option>
+                {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                {% endfor %}
+            </select>
+
+            {% if progress_trends %}
+                <ul class="trends-list">
+                    {% for trend in progress_trends %}
+                        <li class="trend-item" data-category="{{ trend.category }}">
+                            <a href="{% url 'indicator-detail' trend.id %}" class="indicator-card-link">
+                                <div class="indicator-card">
+                                    <h3>{{ trend.name }}</h3>
+                                    <p>Goal: {{ trend.goal }}</p>
+                                    <p>Output: {{ trend.output }}</p>
+                                    <p>Progress: {{ trend.progress }}%</p>
+                                    <div class="progress-bar mini">
+                                        <div class="progress-fill" style="width: {{ trend.progress }}%"></div>
+                                    </div>
+                                    <span class="comment-badge">{{ trend.comment_count }} Comments</span>
+                                </div>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-data">No indicators available.</p>
+            {% endif %}
+        </section>
+
+        <div class="card">
+            <h3>Total Comments</h3>
+            <p>{{ total_comments }}</p>
         </div>
-    </section>
+
+        <section class="chart-section">
+            <h2>Visual Overview</h2>
+            <div class="chart-wrapper">
+                <div class="chart-box">
+                    <h3 class="chart-title">Overall Completion</h3>
+                    <canvas id="progressChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3 class="chart-title">Top Indicators</h3>
+                    <canvas id="barChart"
+                            data-labels='{{ bar_labels|default:"[]"|safe|escapejs }}'
+                            data-values='{{ bar_values|default:"[]"|safe|escapejs }}'>
+                    </canvas>
+                </div>
+            </div>
+        </section>
+    {% else %}
+        <p class="no-data">⚠️ Please select a project to view dashboard data.</p>
+    {% endif %}
 </div>
 {% endblock %}
 

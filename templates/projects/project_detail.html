@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Project: {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="project-detail-container">
+  <header class="project-header">
+    <h2>{{ project.name }}</h2>
+    <p class="project-desc">{{ project.description }}</p>
+
+    <div class="project-meta">
+      <p><strong>Donor:</strong> {{ project.donor }}</p>
+      <p><strong>Duration:</strong> {{ project.start_date }} - {{ project.end_date }}</p>
+      <p><strong>Total Budget:</strong> KES {{ project.total_budget|floatformat:2 }}</p>
+    </div>
+
+    <div class="project-actions">
+      <a href="{% url 'project-edit' project.pk %}" class="btn btn-warning">✏️ Edit</a>
+      <a href="{% url 'project-delete' project.pk %}" class="btn btn-danger">🗑️ Delete</a>
+    </div>
+  </header>
+
+  <section class="logframe-section">
+    <h3>📊 Logframe Summary</h3>
+    {% for goal in goals %}
+      <div class="goal">
+        <h4>🎯 Goal: {{ goal.title }}</h4>
+        <ul>
+          {% for outcome in goal.outcomes.all %}
+            <li><strong>Outcome:</strong> {{ outcome.title }}
+              <ul>
+                {% for output in outcome.outputs.all %}
+                  <li><strong>Output:</strong> {{ output.title }}
+                    <ul>
+                      {% for indicator in output.indicators.all %}
+                        <li><strong>Indicator:</strong> {{ indicator.name }}</li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% empty %}
+      <p>No goals/logframe items yet.</p>
+    {% endfor %}
+  </section>
+
+  <section class="budget-section">
+    <h3>💰 Budget Summary</h3>
+    <ul>
+      {% for budget in budgets %}
+        <li>
+          <strong>{{ budget.activity }}</strong> - Allocated: {{ budget.amount_allocated }} |
+          Spent: {{ budget.amount_spent }}
+        </li>
+      {% empty %}
+        <li>No budget items found.</li>
+      {% endfor %}
+    </ul>
+    <p><strong>Total Allocated:</strong> {{ total_allocated }}</p>
+    <p><strong>Total Spent:</strong> {{ total_spent }}</p>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.project-detail-container {
+  max-width: 960px;
+  margin: 2rem auto;
+  background: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.project-header {
+  border-bottom: 1px solid #eee;
+  margin-bottom: 2rem;
+}
+
+.project-header h2 {
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  color: #007bff;
+}
+
+.project-desc {
+  color: #555;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.project-meta p {
+  margin: 0.3rem 0;
+  font-size: 1rem;
+}
+
+.project-actions {
+  margin-top: 1rem;
+}
+
+.project-actions .btn {
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  border-radius: 6px;
+  margin-right: 1rem;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  border: none;
+  color: #000;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border: none;
+  color: #fff;
+}
+
+.logframe-section, .budget-section {
+  margin-top: 2rem;
+}
+
+.goal {
+  background: #f9f9f9;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid #007bff;
+  border-radius: 8px;
+}
+
+.goal ul {
+  margin-top: 0.5rem;
+}
+
+.goal ul li {
+  margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Add any JavaScript functionality here if needed
+});
+</script>
+{% endblock %}

@@ -17,9 +17,26 @@
 </style>
 
 <div class="container">
+  <form method="get" id="projectSelectorForm">
+  <label for="project">Select Project:</label>
+  <select name="project" id="project" required onchange="document.getElementById('projectSelectorForm').submit();">
+    <option value="">-- Choose Project --</option>
+    {% for proj in projects %}
+      <option value="{{ proj.id }}" {% if proj.id|stringformat:"s" == request.GET.project %}selected{% endif %}>{{ proj.name }}</option>
+    {% endfor %}
+  </select>
+</form>
+  {% if request.GET.project %}
+    <p>Selected Project: {{ request.GET.project }}</p>
+  {% else %}
+    <p style="color: red;">⚠️ Please select a project to manage indicators.</p>
+  {% endif %}
+
+
   <h2>Indicators</h2>
 
-   <a href="{% url 'logframe-home' %}" class="view-logframe-btn">Back to Logframe</a>
+   <a href="{% url 'logframe-home' %}?project={{ project.id }}" class="view-logframe-btn" >Back to Logframe</a>
+
 
   <!-- Indicator Form -->
   <div class="output-form">

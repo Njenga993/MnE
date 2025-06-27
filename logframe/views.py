@@ -3,69 +3,10 @@ from rest_framework import viewsets
 from django.http import HttpResponse
 from .models import Goal, Outcome, Output, Indicator
 from .serializers import GoalSerializer, OutcomeSerializer, OutputSerializer, IndicatorSerializer
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,  get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django import forms
-
-def goals_view(request):
-    return render(request, 'logframe/goals.html')
-
-class OutcomeForm(forms.ModelForm):
-    class Meta:
-        model = Outcome
-        fields = ['title', 'description', 'goal']
-
-def outcomes_view(request):
-    outcomes = Outcome.objects.select_related('goal').all()
-    form = OutcomeForm()
-
-    if request.method == 'POST':
-        form = OutcomeForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('outcomes-ui')
-
-    return render(request, 'logframe/outcomes.html', {
-        'outcomes': outcomes,
-        'form': form
-    })
-
-
-def outputs_view(request):
-    outputs = Output.objects.select_related('outcome').all()
-    outcomes = Outcome.objects.all()
-
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        outcome_id = request.POST.get('outcome')
-
-        if title and description and outcome_id:
-            try:
-                outcome = Outcome.objects.get(id=outcome_id)
-                Output.objects.create(title=title, description=description, outcome=outcome)
-                return redirect('outputs')
-            except Outcome.DoesNotExist:
-                pass  # handle error if needed
-
-    return render(request, 'logframe/outputs.html', {
-        'outputs': outputs,
-        'outcomes': outcomes
-    })
-
-
-def indicators_view(request):
-    indicators = Indicator.objects.all()
-    outputs = Output.objects.all()
-
-    return render(request, 'logframe/indicators.html', {
-        'indicators': indicators,
-        'outputs': outputs
-    })
-
-@login_required
-def logframe_home_view(request):
-    return render(request, "logframe/logframe_home.html")
+from projects.models import Project
 
 
 class GoalViewSet(viewsets.ModelViewSet):
@@ -83,4 +24,137 @@ class OutputViewSet(viewsets.ModelViewSet):
 class IndicatorViewSet(viewsets.ModelViewSet):
     queryset = Indicator.objects.all()
     serializer_class = IndicatorSerializer
+
+def goals_view(request):
+    project_id = request.GET.get('project')
+    if not project_id:
+        return redirect('logframe-home')
+
+    project = get_object_or_404(Project, pk=project_id)
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        if title:
+            Goal.objects.create(title=title, description=description, project=project)
+            return redirect(f'{request.path}?project={project_id}')  # retain project context
+
+    goals = Goal.objects.filter(project=project)
+
+    return render(request, 'logframe/goals.html', {
+        'goals': goals,
+        'project': project
+    })
+
+
+# ---------------- OUTCOMES -------------------
+class OutcomeForm(forms.ModelForm):
+    class Meta:
+        model = Outcome
+        fields = ['title', 'description', 'goal']
+
+def outcomes_view(request):
+    project_id = request.GET.get('project')
+    if not project_id or not project_id.isdigit():
+     return redirect('logframe-home')
+
+    project = get_object_or_404(Project, pk=int(project_id))
+    goals = Goal.objects.filter(project=project)
+    outcomes = Outcome.objects.filter(goal__in=goals)
+
+    form = OutcomeForm()
+    form.fields['goal'].queryset = goals  # Limit goal options to this project
+
+    if request.method == 'POST':
+        form = OutcomeForm(request.POST)
+        form.fields['goal'].queryset = goals  # Ensure goal still limited
+        if form.is_valid():
+            form.save()
+            return redirect(f'{request.path}?project={project_id}')
+
+    return render(request, 'logframe/outcomes.html', {
+        'outcomes': outcomes,
+        'form': form,
+        'project': project,
+    })
+
+# ---------------- OUTPUTS -------------------
+def outputs_view(request):
+    project_id = request.GET.get('project')
+    if not project_id or not project_id.isdigit():
+     return redirect('logframe-home')
+
+    project = get_object_or_404(Project, pk=int(project_id))
+    outcomes = Outcome.objects.filter(goal__project=project)
+    outputs = Output.objects.filter(outcome__in=outcomes)
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        outcome_id = request.POST.get('outcome')
+
+        if title and description and outcome_id:
+            try:
+                outcome = Outcome.objects.get(id=outcome_id, goal__project=project)
+                Output.objects.create(title=title, description=description, outcome=outcome)
+                return redirect(f'{request.path}?project={project_id}')
+            except Outcome.DoesNotExist:
+                pass  # optionally add an error message
+
+    return render(request, 'logframe/outputs.html', {
+        'outputs': outputs,
+        'outcomes': outcomes,
+        'project': project,
+    })
+
+# ---------------- INDICATORS -------------------
+def indicators_view(request):
+    project_id = request.GET.get('project')
+    if not project_id or not project_id.isdigit():
+     return redirect('logframe-home')
+
+    project = get_object_or_404(Project, pk=int(project_id))
+    outputs = Output.objects.filter(outcome__goal__project=project)
+    indicators = Indicator.objects.filter(output__in=outputs)
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        means = request.POST.get('means_of_verification')
+        unit = request.POST.get('unit_of_measurement', '')
+        baseline = request.POST.get('baseline', 0)
+        target = request.POST.get('target', 0)
+        actual = request.POST.get('actual', 0)
+        output_id = request.POST.get('output')
+
+        try:
+            output = Output.objects.get(id=output_id, outcome__goal__project=project)
+            Indicator.objects.create(
+                name=name,
+                means_of_verification=means,
+                unit_of_measurement=unit,
+                baseline=baseline,
+                target=target,
+                actual=actual,
+                output=output
+            )
+            return redirect(f'{request.path}?project={project_id}')
+        except Output.DoesNotExist:
+            pass
+
+    return render(request, 'logframe/indicators.html', {
+        'indicators': indicators,
+        'outputs': outputs,
+        'project': project,
+    })
+
+
+@login_required
+def logframe_home_view(request):
+    projects = Project.objects.all()
+    selected_project_id = request.GET.get('project')
+
+    return render(request, "logframe/logframe_home.html", {
+        'projects': projects,
+        'selected_project_id': selected_project_id,
+    })
 

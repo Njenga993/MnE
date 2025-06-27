@@ -10,8 +10,8 @@ urlpatterns = [
     path('', login_user, name='login'),  # ✅ This handles the root URL
 
     # API Routes (versioned for future scalability)
+    path('api/v1/projects/', include('projects.urls')),
     path('api/v1/logframe/', include('logframe.urls')),
-    path('api/v1/mobile/', include('mobile_api.urls')),
     path('api/v1/indicators/', include('indicators.urls')),
 
     # Additional Modules (Uncomment when used)
