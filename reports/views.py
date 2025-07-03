@@ -2,7 +2,8 @@
 import csv
 from reportlab.pdfgen import canvas
 from django.http import HttpResponse
-from indicators.models import Indicator  # use your actual model path
+from django.shortcuts import render, get_object_or_404
+from logframe.models import Indicator
 
 def export_indicators_csv(request):
     response = HttpResponse(content_type='text/csv')

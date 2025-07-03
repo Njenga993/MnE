@@ -2,10 +2,13 @@ from projects.models import Project
 from django.views import View
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Sum, Count
-from indicators.models import Indicator
-from logframe.models import Goal, Outcome, Output
+from logframe.models import Indicator, Goal, Outcome, Output
 from comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
+from projects.models import Budget
+from activities.models import Activity
+from django.http import HttpResponse
+
 
 
 class DashboardSummaryView(View):
@@ -13,25 +16,29 @@ class DashboardSummaryView(View):
         project_id = request.GET.get("project")
         selected_project = None
 
+        # Defaults for when no project is selected
+        goals = Goal.objects.none()
+        outcomes = Outcome.objects.none()
+        outputs = Output.objects.none()
+        indicators = Indicator.objects.none()
+        
+        budget_items = []
+        total_allocated = 0
+        total_spent = 0
+
         if project_id:
             selected_project = get_object_or_404(Project, pk=project_id)
 
-        # If a project is selected, fetch data for that project
-        if selected_project:
             goals = Goal.objects.filter(project=selected_project)
             outcomes = Outcome.objects.filter(goal__in=goals)
             outputs = Output.objects.filter(outcome__in=outcomes)
-            indicators = Indicator.objects.filter(output__in=outputs).select_related(
-                'output__outcome__goal'
-            ).prefetch_related('data')
-        else:
-            # Return nothing if no project is selected
-            goals = Goal.objects.none()
-            outcomes = Outcome.objects.none()
-            outputs = Output.objects.none()
-            indicators = Indicator.objects.none()
+            indicators = Indicator.objects.filter(output__in=outputs)
+            activities = Activity.objects.filter(project=selected_project)
+            # Budget logic
+            budget_items = selected_project.budgets.all()
+            total_allocated = sum(b.amount_allocated for b in budget_items)
+            total_spent = sum(b.amount_spent for b in budget_items)
 
-        # Count totals
         totals = {
             "goals": goals.count(),
             "outcomes": outcomes.count(),
@@ -39,7 +46,11 @@ class DashboardSummaryView(View):
             "indicators": indicators.count(),
         }
 
-        # Comment count map
+        # Comment count
+        from comments.models import Comment
+        from django.contrib.contenttypes.models import ContentType
+        from django.db.models import Count, Sum
+
         indicator_ct = ContentType.objects.get_for_model(Indicator)
         comment_counts = Comment.objects.filter(
             content_type=indicator_ct,
@@ -49,11 +60,8 @@ class DashboardSummaryView(View):
         comment_count_map = {item['object_id']: item['count'] for item in comment_counts}
         total_comments = sum(comment_count_map.values())
 
-        # Compute progress
         def compute_progress(indicator):
-            total_actual = indicator.data.aggregate(total=Sum('value'))['total'] or 0
-            target = indicator.target or 0
-            return round((total_actual / target) * 100, 2) if target else 0
+            return indicator.progress_percentage()
 
         progress_values = []
         progress_trends = []
@@ -73,7 +81,7 @@ class DashboardSummaryView(View):
 
         average_progress = round(sum(progress_values) / len(progress_values), 2) if progress_values else 0
 
-        # (Optional) Top indicators for chart
+        # Top indicators chart
         top_indicators = sorted(progress_trends, key=lambda x: x['progress'], reverse=True)[:5]
         bar_labels = [ind['name'] for ind in top_indicators]
         bar_values = [ind['progress'] for ind in top_indicators]
@@ -87,5 +95,11 @@ class DashboardSummaryView(View):
             "bar_labels": bar_labels,
             "bar_values": bar_values,
             "projects": Project.objects.all(),
-            "selected_project_id": project_id
+            "selected_project_id": project_id,
+            "budget_items": budget_items,
+            "total_allocated": total_allocated,
+            "total_spent": total_spent,
+            "activities": activities,
+
         })
+

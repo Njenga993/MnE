@@ -47,8 +47,11 @@
           <th>ID</th>
           <th>Title</th>
           <th>Description</th>
+          <th>Project</th>
+          <th>Created By</th>
           <th>Created At</th>
           <th>Actions</th> 
+
         </tr>
       </thead>
       <tbody id="goalTableBody">
@@ -87,6 +90,8 @@ document.addEventListener("DOMContentLoaded", function () {
             <td>${goal.id}</td>
             <td>${goal.title}</td>
             <td>${goal.description}</td>
+            <td>${goal.project_name || ''}</td>
+            <td>${goal.created_by || '{{request.user.get_full_name|default:request.user.username}}'}</td>
             <td>${new Date(goal.created_at).toLocaleString()}</td>
             <td>
               <button onclick="editGoal(${goal.id}, \`${goal.title.replace(/`/g, "\\`")}\`, \`${goal.description.replace(/`/g, "\\`")}\`)">Edit</button>
@@ -108,17 +113,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const csrfToken = goalForm.querySelector("[name=csrfmiddlewaretoken]").value;
 
-    fetch(url, {
-      method,
-      headers: {
-        "X-CSRFToken": csrfToken,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        title: titleInput.value,
-        description: descInput.value
-      })
-    })
+fetch(url, {
+  method,
+  headers: {
+    "X-CSRFToken": csrfToken,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    title: titleInput.value,
+    description: descInput.value,
+    project: "{{ project.id }}"
+  })
+})
+
     .then(res => res.json())
     .then(() => {
       goalForm.reset();

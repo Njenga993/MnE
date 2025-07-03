@@ -30,7 +30,7 @@ INSTALLED_APPS = [
 
     # Your apps
     'logframe',
-    'indicators',
+    'activities',
     'mobile_api',
     'dashboard',
     'comments',

@@ -12,7 +12,7 @@ urlpatterns = [
     # API Routes (versioned for future scalability)
     path('api/v1/projects/', include('projects.urls')),
     path('api/v1/logframe/', include('logframe.urls')),
-    path('api/v1/indicators/', include('indicators.urls')),
+    path('api/v1/activities/', include('activities.urls')),
 
     # Additional Modules (Uncomment when used)
     path('api/v1/dashboard/', include('dashboard.urls')),

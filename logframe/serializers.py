@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Goal, Outcome, Output, Indicator
+from projects.models import Project
 
 class IndicatorSerializer(serializers.ModelSerializer):
     progress = serializers.SerializerMethodField()
@@ -39,10 +40,14 @@ class OutcomeSerializer(serializers.ModelSerializer):
 
 
 class GoalSerializer(serializers.ModelSerializer):
-    outcomes = OutcomeSerializer(many=True, read_only=True)
+    project_name = serializers.CharField(source='project.name', read_only=True)
 
     class Meta:
         model = Goal
-        fields = [
-            'id', 'title', 'description', 'outcomes'
-        ]
+        fields = ['id', 'title', 'description', 'created_at', 'project', 'project_name']
+class ProjectSerializer(serializers.ModelSerializer):
+    goals = GoalSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Project
+        fields = ['id', 'name', 'description', 'goals']

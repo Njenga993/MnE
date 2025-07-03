@@ -44,6 +44,84 @@
         margin: 2rem 0;
         font-weight: bold;
     }
+    .progress-bar {
+        background-color: #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+        height: 30px;
+        margin: 1rem 0;
+    }
+    .budget-section {
+        margin-top: 2rem;
+        padding: 1rem;
+        background-color: #f1f1f1;
+        border-radius: 8px;
+   }
+    .budget-section li {
+        margin-bottom: 1rem;
+   }
+   .budget-summary {
+    margin: 2rem 0;
+    background: #f0fdf4;
+    border-left: 4px solid #00695c;
+    padding: 1rem;
+}
+.budget-summary ul {
+    list-style: none;
+    padding-left: 0;
+}
+.budget-summary li {
+    margin-bottom: 1rem;
+    background: white;
+    padding: 0.75rem;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.budget-summary p {
+    margin: 0.5rem 0;
+}
+    .budget-summary strong {
+        color: #004d40;
+    }
+    .task-section {
+        margin-top: 2rem;
+        padding: 1rem;
+        background-color: #f1f1f1;
+        border-radius: 8px;
+    }
+    .task-section h3 {
+        margin-bottom: 0.5rem;
+    }
+    .task-section p {
+        margin: 0.25rem 0;
+    }
+.activity-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+.activity-status {
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: white;
+}
+.status-planned { background-color: #90a4ae; }
+.status-ongoing { background-color: #f9a825; }
+.status-completed { background-color: #388e3c; }
+.budget-bar {
+    background-color: #eee;
+    border-radius: 6px;
+    height: 10px;
+    overflow: hidden;
+}
+.budget-fill {
+    height: 100%;
+    transition: width 0.3s;
+}
+
+
 </style>
 {% endblock %}
 
@@ -103,18 +181,16 @@
                 <ul class="trends-list">
                     {% for trend in progress_trends %}
                         <li class="trend-item" data-category="{{ trend.category }}">
-                            <a href="{% url 'indicator-detail' trend.id %}" class="indicator-card-link">
-                                <div class="indicator-card">
-                                    <h3>{{ trend.name }}</h3>
-                                    <p>Goal: {{ trend.goal }}</p>
-                                    <p>Output: {{ trend.output }}</p>
-                                    <p>Progress: {{ trend.progress }}%</p>
-                                    <div class="progress-bar mini">
-                                        <div class="progress-fill" style="width: {{ trend.progress }}%"></div>
-                                    </div>
-                                    <span class="comment-badge">{{ trend.comment_count }} Comments</span>
+                            <div class="indicator-card">
+                                <h3>{{ trend.name }}</h3>
+                                <p>Goal: {{ trend.output.outcome.goal.name }}</p>
+                                <p>Output: {{ trend.output.name }}</p>
+                                <p>Progress: {{ trend.progress }}%</p>
+                                <div class="progress-bar mini">
+                                    <div class="progress-fill" style="width: {{ trend.progress }}%"></div>
                                 </div>
-                            </a>
+                                <span class="comment-badge">{{ trend.comment_count }} Comments</span>
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>
@@ -122,11 +198,106 @@
                 <p class="no-data">No indicators available.</p>
             {% endif %}
         </section>
+<section class="budget-summary">
+    <h2>💰 Budget Summary</h2>
 
+    {% if budget_items %}
+        <ul>
+            {% for item in budget_items %}
+                <li>
+                    <strong>{{ item.activity }}</strong><br>
+                    Allocated: KES {{ item.amount_allocated|floatformat:2 }}<br>
+                    Spent: KES {{ item.amount_spent|floatformat:2 }}<br>
+                    Remaining: KES {{ item.remaining|floatformat:2 }}<br>
+                    Used: {{ item.spent_percentage }}%
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No budget items found.</p>
+    {% endif %}
+
+    <hr>
+
+    <p><strong>Total Allocated:</strong> KES {{ total_allocated|floatformat:2 }}</p>
+    <p><strong>Total Spent:</strong> KES {{ total_spent|floatformat:2 }}</p>
+    <p><strong>Total Remaining:</strong> KES {{total_spent|floatformat:2 }}</p>
+    <p><strong>Overall Utilization:</strong> 
+        {% if total_allocated > 0 %}
+            {{ total_spent|divisibleby:total_allocated|floatformat:2 }}%
+        {% else %}
+            0%
+        {% endif %}
+    </p>
+</section>
+
+<section
+class="task-section">
+        
+            <h3>Total Tasks:</h3>
+            <p>{{ total_tasks }}</p>
+            <h3>Pending Tasks:</h3>
+            <p>{{ pending_tasks }}</p>
+            <h3>Completed Tasks:</h3>
+            <p>{{ completed_tasks }}</p>
+            <h3>Overdue Tasks:</h3>
+            <p>{{ overdue_tasks }}</p>
+
+</section>   
+
+<section class="task-section">
+    <h3>📋 Project Activities</h3>
+
+    {% if activities %}
+        <ul style="list-style: none; padding: 0;">
+            {% for act in activities %}
+                <li style="margin: 1rem 0; padding: 1rem; border: 1px solid #ddd; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>{{ act.title }}</strong>
+                        <span style="padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.85rem;
+                            background-color:
+                                {% if act.status == 'completed' %}#388e3c
+                                {% elif act.status == 'ongoing' %}#f9a825
+                                {% else %}#90a4ae{% endif %};
+                            color: white;">
+                            {{ act.status|title }}
+                        </span>
+                    </div>
+                    <p style="margin: 0.5rem 0;">
+                        💰 Budget: {{ act.budget_spent }} / {{ act.budget_allocated }}
+                        ({{ act.percent_spent }}%)
+                    </p>
+
+                    <!-- Progress Bar -->
+                    <div style="background-color: #eee; border-radius: 6px; height: 10px; overflow: hidden;">
+                        <div style="
+                            height: 100%;
+                            width: {{ act.percent_spent }}%;
+                            background-color:
+                                {% if act.percent_spent > 100 %}#c62828
+                                {% elif act.percent_spent > 90 %}#f57c00
+                                {% else %}#2e7d32{% endif %};
+                            transition: width 0.3s;">
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="no-data">No activities found for this project.</p>
+    {% endif %}
+</section>
+
+
+
+<br>
+
+<section>
         <div class="card">
             <h3>Total Comments</h3>
             <p>{{ total_comments }}</p>
         </div>
+        </section>
 
         <section class="chart-section">
             <h2>Visual Overview</h2>

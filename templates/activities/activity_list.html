@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Activities{% endblock %}
+
+{% block content %}
+<h2>Project Activities</h2>
+
+<a href="{% url 'activity-create' %}" class="btn btn-primary">➕ Add Activity</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Project</th>
+            <th>Output</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Allocated</th>
+            <th>Spent</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for activity in activities %}
+        <tr>
+            <td>{{ activity.title }}</td>
+            <td>{{ activity.project.name }}</td>
+            <td>{{ activity.output.title }}</td>
+            <td>{{ activity.start_date }}</td>
+            <td>{{ activity.end_date }}</td>
+            <td>KES {{ activity.budget_allocated }}</td>
+            <td>KES {{ activity.budget_spent }}</td>
+            <td>{{ activity.get_status_display }}</td>
+            <td>
+                <a href="{% url 'activity-edit' activity.id %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'activity-delete' activity.id %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9">No activities found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

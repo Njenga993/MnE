@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Activity Form{% endblock %}
+
+{% block extra_css %}
+<!-- Flatpickr CSS for calendar -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .activity-form-container {
+        max-width: 700px;
+        margin: 3rem auto;
+        padding: 2rem;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .activity-form-container h2 {
+        margin-bottom: 1.5rem;
+        color: #004d40;
+    }
+    .activity-form-container form label {
+        font-weight: 600;
+        display: block;
+        margin-top: 1rem;
+    }
+    .activity-form-container input,
+    .activity-form-container select,
+    .activity-form-container textarea {
+        width: 100%;
+        padding: 0.6rem;
+        margin-top: 0.3rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .activity-form-container button,
+    .activity-form-container a.btn {
+        padding: 0.5rem 1.2rem;
+        margin-top: 1.5rem;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+    .btn-success {
+        background-color: #004d40;
+        color: white;
+        border: none;
+    }
+    .btn-secondary {
+        background-color: #ccc;
+        color: #333;
+        margin-left: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="activity-form-container">
+    <h2>{% if form.instance.pk %}Edit{% else %}Create{% endif %} Activity</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-success">💾 Save</button>
+        <a href="{% url 'activity-list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr(".datepicker", {
+        altInput: true,
+        altFormat: "F j, Y",
+        dateFormat: "Y-m-d"
+    });
+</script>
+{% endblock %}
